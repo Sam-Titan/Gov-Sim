@@ -1,6 +1,6 @@
 # PHASES — GovSim V1
 
-Approved by Sam, 2026-11-16. Work on one phase at a time.
+Approved by Sam, 2026-11-16. Phase 1 changed 2026-11-15 (D-028). Work on one phase at a time.
 
 **End of every phase:**
 1. `just check` and `just test` pass.
@@ -22,17 +22,19 @@ Approved by Sam, 2026-11-16. Work on one phase at a time.
 **Done when:** `just setup`, `just dev`, `just check`, `just test` all work on the empty app.
 
 ## Phase 1 — Data
-- Sam puts login-only files in `data/raw/` (Ujjwala, NSAP, map, data.gov.in Jan Dhan).
-- Scripts download public files (Census 2011, NFHS-5, pmjdy.gov.in).
-- Clean each source → Parquet in `data/processed/`.
-- District join table (Census 2011 codes, LGD codes, split districts → 2011 parent).
-- Estimate "eligible" counts per scheme per district.
-- Jan Dhan: find the best free district data; record coverage in DECISIONS.md.
-- Simplify the map → GeoJSON for the frontend (keep CC BY-NC-SA credit).
-- Fill `data/MANIFEST.csv`.
+- Scripts download the NFHS-5 district fact sheets (PDF) from dhsprogram.com with polite
+  delays (`download_public.py`). Telangana is included; Chandigarh is skipped.
+- `parse_nfhs.py` reads each PDF with `pdftotext` (data scripts only) and writes
+  `data/processed/nfhs_districts.parquet`: 4 indicators x NFHS-5 and NFHS-4.
+- Download the Census 2011 Primary Census Abstract (district level) from censusindia.gov.in: households, population, rural/urban, children 0-6, SC/ST, literacy, workers (no widow, disability, age 60+, BPL; see PROGRESS).
+- District join table (Census 2011 codes, LGD codes, NFHS names -> map polygons, split districts -> 2011 parent).
+- Estimate "eligible" counts per scheme per district (rules in SPEC §3).
+- Clean the map; simplify it to GeoJSON for the frontend (keep CC BY-NC-SA credit).
+- Fill `data/MANIFEST.csv` for every file.
+- Data report: row counts, missing districts, missing values, coverage per state.
 
-**Done when:** one clean uptake table per scheme, one population/traits table, one map
-file, and a data report (row counts, missing districts, coverage per state).
+**Done when:** one clean uptake table (4 schemes x 2 time points), one population/traits
+table, one map file, and a data report.
 
 ## Phase 2 — Model
 - Agent sampler per district (seeded).
