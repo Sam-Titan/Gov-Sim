@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { GetHealthData, GetHealthResponses } from './types.gen';
+import type { CompareData, CompareErrors, CompareResponses, GetDistrictsData, GetDistrictsErrors, GetDistrictsResponses, GetHealthData, GetHealthResponses, GetReportData, GetReportResponses, GetSchemesData, GetSchemesResponses, GetStatesData, GetStatesResponses, SimulateData, SimulateErrors, SimulateResponses, SimulateStateData, SimulateStateErrors, SimulateStateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -22,3 +22,63 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  * Get Health
  */
 export const getHealth = <ThrowOnError extends boolean = false>(options?: Options<GetHealthData, ThrowOnError>): RequestResult<GetHealthResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetHealthResponses, unknown, ThrowOnError>({ url: '/api/health', ...options });
+
+/**
+ * Get States
+ */
+export const getStates = <ThrowOnError extends boolean = false>(options?: Options<GetStatesData, ThrowOnError>): RequestResult<GetStatesResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetStatesResponses, unknown, ThrowOnError>({ url: '/api/states', ...options });
+
+/**
+ * Get Districts
+ *
+ * All districts of a state, with `has_data` and a `reason` when there is no data.
+ */
+export const getDistricts = <ThrowOnError extends boolean = false>(options?: Options<GetDistrictsData, ThrowOnError>): RequestResult<GetDistrictsResponses, GetDistrictsErrors, ThrowOnError> => (options?.client ?? client).get<GetDistrictsResponses, GetDistrictsErrors, ThrowOnError>({ url: '/api/districts', ...options });
+
+/**
+ * Get Schemes
+ */
+export const getSchemes = <ThrowOnError extends boolean = false>(options?: Options<GetSchemesData, ThrowOnError>): RequestResult<GetSchemesResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetSchemesResponses, unknown, ThrowOnError>({ url: '/api/schemes', ...options });
+
+/**
+ * Simulate
+ */
+export const simulate = <ThrowOnError extends boolean = false>(options: Options<SimulateData, ThrowOnError>): RequestResult<SimulateResponses, SimulateErrors, ThrowOnError> => (options.client ?? client).post<SimulateResponses, SimulateErrors, ThrowOnError>({
+    url: '/api/simulate',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Simulate State
+ *
+ * One row per district of the state. Districts with no data come back `has_data: false`.
+ */
+export const simulateState = <ThrowOnError extends boolean = false>(options: Options<SimulateStateData, ThrowOnError>): RequestResult<SimulateStateResponses, SimulateStateErrors, ThrowOnError> => (options.client ?? client).post<SimulateStateResponses, SimulateStateErrors, ThrowOnError>({
+    url: '/api/simulate/state',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Compare
+ */
+export const compare = <ThrowOnError extends boolean = false>(options: Options<CompareData, ThrowOnError>): RequestResult<CompareResponses, CompareErrors, ThrowOnError> => (options.client ?? client).post<CompareResponses, CompareErrors, ThrowOnError>({
+    url: '/api/compare',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Get Report
+ */
+export const getReport = <ThrowOnError extends boolean = false>(options?: Options<GetReportData, ThrowOnError>): RequestResult<GetReportResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetReportResponses, unknown, ThrowOnError>({ url: '/api/report', ...options });

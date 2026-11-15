@@ -17,3 +17,24 @@ def test_parse_text_reads_total_column() -> None:
     assert rows["Kerala"]["women_internet_nfhs5"] == 34.8
     assert rows["Kerala"]["women_internet_nfhs4"] is None
     assert rows["Goa"]["women_bank_account_nfhs5"] == 88.3
+
+
+INS = "12. Households with any usual member covered under a health insurance/financing scheme (%)"
+BASELINE_TEXT = (
+    "  NCT Delhi - Key Indicators\n"
+    "10. Households using clean fuel for cooking3 (%)     99.0   97.6   98.9   97.9\n"
+    f"{INS}   25.0   27.1   25.0   15.7\n"
+    "  Telangana - Key Indicators\n"
+    "10. Households using clean fuel for cooking3 (%)     98.2   88.3   91.8   67.3\n"
+    f"{INS}   52.9   65.0   60.8   66.4\n"
+)
+
+
+def test_parse_baseline_reads_nfhs4_total_column() -> None:
+    rows = {r["state"]: r for r in ps.parse_baseline(BASELINE_TEXT)}
+    assert rows["NCT Delhi"] == {
+        "state": "NCT Delhi",
+        "clean_fuel_nfhs4": 97.9,
+        "health_insurance_nfhs4": 15.7,
+    }
+    assert rows["Telangana"]["health_insurance_nfhs4"] == 66.4

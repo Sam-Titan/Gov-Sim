@@ -130,14 +130,11 @@ Rules:
     learned from the data and rest on priors.
   - Time: two points (NFHS-4, NFHS-5) only; no Telangana NFHS-4.
 
-### 5.4 Fast surrogate (instant sliders)
+### 5.4 Fast answers (instant sliders, live model)
 - **Output (D-039, D-041):** result = actual NFHS-5 value of the district ("from data") + agent-model change from the scheme's real settings to the user's settings ("model assumption"), anchored in logit space. Custom policies: the user picks a real scheme to start from; always the `new_policy` label.
-- **Range (D-040, D-041)** = NFHS sampling band (SE = sqrt(deff x p(1-p)/n), n from the sheet, deff 2 assumed, 10th-90th pct) + the spread of the slider change across the weak / central / strong β sets, added end to end. `low_confidence` label when wider than 30 pp.
-- Run the agent model (at the fixed β sets) on many random slider settings × all districts.
-- Train LightGBM quantile models (10th / 50th / 90th percentile) on those runs → range.
-- Save with joblib to `backend/artifacts/`.
-- **Reasons:** top 3 β terms that change uptake most for that district (from the agent
-  model's terms, averaged over the district's agents).
+- **Range (D-040, D-041)** = NFHS sampling band (SE = sqrt(deff x p(1-p)/n), n = households from the sheet, or estimated births for JSY (D-042), deff 2 assumed, 10th-90th pct) + the spread of the slider change across the weak / central / strong β sets, added end to end. `low_confidence` label when wider than 30 pp.
+- **No surrogate (D-043).** The anchored agent model runs live for every request at the three β sets (weak / central / strong): about 6 ms for one district, 25 ms for all 629 districts.
+- **Reasons:** top 3 slider terms that change the result most for that district (each term switched on alone, anchored, central β set).
 - **Warnings:**
   - `out_of_range`: a slider is outside the values seen in training.
   - `new_policy`: a custom policy is far from all real schemes → wider range + label.
@@ -173,7 +170,14 @@ Removed: `digital_only` (D-031). `requires_bank_account` stays until Phase 2 sho
 - Name the policy.
 - Target group from traits we have: age band (incl. 60+), gender, disability, rural/urban,
   unbanked (state-level, `partial_data`). Not offered: widow, BPL, no LPG (D-036).
-- The same sliders. Always shows the `new_policy` label when far from real schemes.
+- The same sliders, and a real scheme to start from (its NFHS level anchors the model).
+- **Result (D-044):** the **uptake within the target group** (% of the group, with a range) and
+  the **estimated number reached** (households for PM-JAY and PMUY, births for JSY, people for
+  SBM; Census 2011 base x group share x uptake; "estimated"). It is **not** the share of all
+  households, and the UI must say so ("of the target group", "estimated, Census 2011 base").
+  Not comparable with a real scheme's share of all; Compare shows no difference between the two.
+- Always shows the `new_policy` label. Groups under 10 of the 500 sampled agents are too small
+  to model (`group_too_small`).
 
 ### 7.3 Compare (`/compare`)
 - Two settings (A and B) for the same district, side by side, with the difference.
@@ -196,7 +200,7 @@ Removed: `digital_only` (D-031). `requires_bank_account` stays until Phase 2 sho
 | GET | `/states` | States list |
 | GET | `/districts?state=` | Districts in a state (codes, names in EN/HI) |
 | GET | `/schemes` | 4 schemes with default slider values and allowed ranges |
-| POST | `/simulate` | One district + scheme input → range, reasons, warnings |
+| POST | `/simulate` | One district + scheme input → range, reasons, warnings (custom policy: group uptake + reach) |
 | POST | `/simulate/state` | One state + scheme input → uptake per district (for the map) |
 | POST | `/compare` | One district + inputs A and B → both results + difference |
 | GET | `/report` | Model report data |

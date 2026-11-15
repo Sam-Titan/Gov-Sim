@@ -248,3 +248,35 @@ Approved by Sam. Updates D-039 and D-040.
 - **Range** = end-to-end sum (D-040): `low = level + min(change) + sampling_low`, `high = level + max(change) + sampling_high`, `point = level + central change`, clipped to 0-100. **"Low confidence" label** when high - low > 30 pp.
 - **PM-JAY benefit slider** capped at ₹2,50,000 to ₹10,00,000 (half to double the real cover), labelled "non-cash cover".
 - **Optional documents effect for all agents: proposed, not used** (values in PROGRESS.md).
+
+## D-042 — JSY sampling band uses estimated births; deff labelled "assumed" (2026-11-15)
+Decided by Sam. Replaces the "JSY band is understated" part of D-041.
+- **JSY n** = women interviewed x (Census 2011 children 0-6 x 5/7 / Census 2011 women 15-49), per district, labelled **estimated** in `report.json`. Women 15-49 come from Census C-13 (Females, ages 15-49; 311.7 million in India, `census_age.parquet` column `women_15_49`). Births per woman: median 0.38 (range 0.19 to 0.79). Limits: 2011 ratio applied to 2019-21; ignores child deaths and migration. JSY median half-width goes from ±1.49 to ±2.34 pp (max 3.38 to 6.0).
+- **Design effect 2.0** stays, labelled "assumed by team" in `report.json` (`sampling_band.deff`).
+- **Documents effect for all agents** (proposal in PROGRESS) is **not used**.
+
+## D-043 — No LightGBM surrogate; the anchored agent model answers live (2026-11-15)
+Decided by Sam. Updates D-004 (the "train a surrogate" part).
+Measured: one `/simulate` core (1 district, 3 beta sets) 6 ms median, 17 ms worst; one state (Uttar Pradesh, 71 districts) 6 ms median, 12 ms worst; all 629 districts 25 ms; start-up 0.3 s. All far under the 200 ms target, so a surrogate would add build time and an extra error source for no speed gain. LightGBM stays only as the GBM baseline (never deleted). Reasons come from the model itself (one slider term switched on at a time).
+
+## D-044 — Custom policies report uptake in the target group and people reached (2026-11-15)
+Decided by Sam. Replaces the custom-policy output of D-014, D-038 and D-041 (a share of all households, which drops sharply for a narrow group).
+- **Uptake in the group (%)** = mean sign-up probability over the group's sampled agents, anchored at the starting scheme's NFHS level (everyone eligible, real settings). **Range** = lowest and highest value over the weak / central / strong beta sets and the NFHS sampling band of the level.
+- **Reached (count, estimated)** = Census 2011 base (households for PM-JAY and PMUY, estimated births for JSY, people for SBM) x group share of the 500 sampled agents x uptake. The group share is an agent-sample share applied to the base, so it is approximate (e.g. "female" households).
+- `changes` = the new settings against the real settings for the same group. Reasons include `target_group` (how the group differs from everyone at the real settings).
+- Groups under 10 of 500 agents: `group_too_small` (no number). `new_policy` stays on; `partial_data` is added when the group is "unbanked".
+- Not comparable with a share of all: `/compare` returns `comparable: false` and no difference when A and B use different bases.
+- SPEC 7.2 updated.
+
+## D-045 — Districts show their current state; no-baseline rule (2026-11-15)
+Decided by Sam.
+- A district whose state changed after Census 2011 is listed and simulated under the **current** state; the 2011 link (`pc11_s_id`) is kept. Warangal is shown under Telangana (formed 2014; hand-reviewed override). Mapped Telangana and Ladakh districts already used the current state from the NFHS sheet. An unknown split with no override stops start-up with an error instead of guessing.
+- PM-JAY and PMUY baseline (D-038): own NFHS-4 value, else the household-weighted state mean (flagged `partial_data`). Where a state has no NFHS-4 value at all (Telangana, 9 districts; NCT Delhi, 9 districts) the result is `no_data` with reason `no_baseline`.
+- JSY cash slider replaces the rural value and keeps the urban:rural ratio; PM-JAY cash outside ₹2,50,000 to ₹10,00,000 returns 422 (approved).
+
+## D-046 — NFHS-4 state value as PM-JAY / PMUY baseline for Delhi and Telangana (2026-11-15)
+Decided by Sam. Extends the baseline rule of D-038 and D-045.
+- Order: the district's NFHS-4 value; else the household-weighted state mean of NFHS-4 district values; else (only NCT Delhi and Telangana, which have no NFHS-4 district value at all) the **official NFHS-4 state value** read from the NFHS-5 state compendium (same two PDFs, MANIFEST rows 751 and 752). Values: health insurance Delhi 15.7, Telangana 66.4; clean fuel Delhi 97.9, Telangana 67.3. Always flagged `partial_data`.
+- Stored in its own file (`nfhs4_state_baseline.parquet`), never as a trait (these are target indicators).
+- Used by the live service only. Phase 2 training still excludes these 18 rows (D-038), so `report.json` is unchanged. The live service now has 629 rows for PM-JAY and PMUY (was 611); `no_baseline` stays as a safety reason but no real district uses it.
+- **Known limit:** in 167 of 629 PM-JAY rows (8 of the 18 new Telangana ones) the NFHS-5 value is not above the NFHS-4 baseline (coverage fell, e.g. RSBY ended). The model cannot go below the baseline, so it anchors at baseline + 0.5 pp and the slider change is measured from there. The displayed level is still the actual NFHS-5 value. PMUY: 23 of 629 rows.

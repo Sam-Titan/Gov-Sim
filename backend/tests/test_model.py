@@ -1,4 +1,5 @@
 import numpy as np
+import polars as pl
 
 from govsim.agents.adoption import FITTED, build_design, covered_share, probabilities, subset
 from govsim.agents.sampler import sample_agents
@@ -82,3 +83,24 @@ def test_subset_keeps_alignment(districts) -> None:
     m = rows["scheme"].to_numpy() == "jsy"
     s = subset(x, m)
     assert len(s.target) == m.sum() and s.type_w.shape[0] == m.sum()
+
+
+def test_state_baseline_fills_states_with_no_nfhs4(districts) -> None:
+    from govsim.data.rows import build_rows
+
+    d = districts.with_columns(
+        pl.when(pl.col("nfhs_state") == "Goa")
+        .then(None)
+        .otherwise(pl.col("health_insurance_nfhs4"))
+        .alias("health_insurance_nfhs4")
+    )
+    without = build_rows(d).filter(pl.col("scheme") == "pmjay")
+    with_ = build_rows(d, {("health_insurance_nfhs4", "Goa"): 12.0}).filter(
+        pl.col("scheme") == "pmjay"
+    )
+    goa = [i for i, st in enumerate(d["nfhs_state"]) if st == "Goa"]
+    assert set(goa).isdisjoint(without["district"].to_list())
+    got = with_.filter(pl.col("district").is_in(goa))
+    assert got.height == len(goa)
+    assert got["baseline"].to_list() == [0.12] * len(goa)
+    assert got["baseline_partial"].all()

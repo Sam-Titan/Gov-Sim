@@ -120,3 +120,35 @@ def clamp_benefit(code: str, value: float) -> float:
     """Keep a benefit slider value in its allowed range (PM-JAY capped, others 0-5,00,000)."""
     lo, hi = PMJAY_BENEFIT_RANGE if code == "pmjay" else (0.0, 500_000.0)
     return min(max(value, lo), hi)
+
+
+# What each metric is a share of (D-030). The UI turns these into words in both languages.
+METRIC_BASE = {"pmjay": "households", "pmuy": "households", "jsy": "births", "sbm": "people"}
+
+# Allowed slider ranges (SPEC section 6).
+DOCUMENTS_RANGE = (0, 8)
+BURDEN_RANGE = (1, 5)
+IMMEDIACY_RANGE = (1, 5)
+CASH_RANGE = (0.0, 500_000.0)
+
+
+def benefit_range(code: str) -> tuple[float, float]:
+    return PMJAY_BENEFIT_RANGE if code == "pmjay" else CASH_RANGE
+
+
+def real_envelope() -> dict[str, tuple[float, float]]:
+    """Min and max of each slider over the real schemes (JSY by state group and area).
+
+    A slider outside this envelope is "beyond what real schemes do" (`out_of_range`).
+    """
+    cash = [s.inputs.cash_benefit_inr for s in SCHEMES.values()]
+    cash += [jsy_benefit(st, r) for st in ("Uttar Pradesh", "Kerala") for r in (True, False)]
+    docs = [s.inputs.document_count for s in SCHEMES.values()] + [jsy_documents("Kerala")]
+    burden = [s.inputs.application_burden for s in SCHEMES.values()]
+    speed = [s.inputs.benefit_immediacy for s in SCHEMES.values()]
+    return {
+        "cash_benefit_inr": (min(cash), max(cash)),
+        "document_count": (min(docs), max(docs)),
+        "application_burden": (min(burden), max(burden)),
+        "benefit_immediacy": (min(speed), max(speed)),
+    }

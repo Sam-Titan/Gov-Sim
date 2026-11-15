@@ -5,6 +5,135 @@ export type ClientOptions = {
 };
 
 /**
+ * Changes
+ *
+ * Slider change in percentage points at the weak / central / strong beta sets.
+ */
+export type Changes = {
+    /**
+     * Weak
+     */
+    weak: number;
+    /**
+     * Central
+     */
+    central: number;
+    /**
+     * Strong
+     */
+    strong: number;
+};
+
+/**
+ * CompareRequest
+ */
+export type CompareRequest = {
+    /**
+     * District Id
+     */
+    district_id: string;
+    a: Setting;
+    b: Setting;
+};
+
+/**
+ * CompareResponse
+ */
+export type CompareResponse = {
+    a: SimulateResponse;
+    b: SimulateResponse;
+    difference: Difference;
+};
+
+/**
+ * Difference
+ *
+ * B minus A. None when A and B are measured on different bases (all vs target group).
+ */
+export type Difference = {
+    /**
+     * Comparable
+     */
+    comparable: boolean;
+    /**
+     * Point
+     */
+    point: number | null;
+    /**
+     * Low
+     */
+    low: number | null;
+    /**
+     * High
+     */
+    high: number | null;
+};
+
+/**
+ * DistrictOut
+ */
+export type DistrictOut = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Pc11 S Id
+     */
+    pc11_s_id: string | null;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Name Hi
+     */
+    name_hi?: string | null;
+    /**
+     * State
+     */
+    state: string;
+    /**
+     * Has Data
+     */
+    has_data: boolean;
+    /**
+     * Reason
+     */
+    reason?: string | null;
+};
+
+/**
+ * ErrorBody
+ *
+ * Error body for 404s: `code` is `unknown_district`, `no_data` or `unknown_state`.
+ */
+export type ErrorBody = {
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * Reason
+     */
+    reason?: string | null;
+};
+
+/**
+ * HTTPValidationError
+ */
+export type HttpValidationError = {
+    /**
+     * Detail
+     */
+    detail?: Array<ValidationError>;
+};
+
+/**
  * HealthResponse
  */
 export type HealthResponse = {
@@ -13,6 +142,546 @@ export type HealthResponse = {
      */
     status: string;
 };
+
+/**
+ * Inputs
+ *
+ * Slider values (SPEC section 6). PM-JAY cash is capped to 2.5 to 10 lakh by the route.
+ */
+export type Inputs = {
+    /**
+     * Cash Benefit Inr
+     */
+    cash_benefit_inr: number;
+    /**
+     * Document Count
+     */
+    document_count: number;
+    /**
+     * Requires Bank Account
+     */
+    requires_bank_account: boolean;
+    /**
+     * Application Burden
+     */
+    application_burden: number;
+    /**
+     * Benefit Immediacy
+     */
+    benefit_immediacy: number;
+};
+
+/**
+ * Range2
+ */
+export type Range2 = {
+    /**
+     * Min
+     */
+    min: number;
+    /**
+     * Max
+     */
+    max: number;
+};
+
+/**
+ * Reach
+ *
+ * Custom policies (D-044): households / births / people reached. Estimated (Census 2011).
+ */
+export type Reach = {
+    /**
+     * Base Count
+     */
+    base_count: number;
+    /**
+     * Group Share Pct
+     */
+    group_share_pct: number;
+    /**
+     * Group Count
+     */
+    group_count: number;
+    /**
+     * Reached Point
+     */
+    reached_point: number;
+    /**
+     * Reached Low
+     */
+    reached_low: number;
+    /**
+     * Reached High
+     */
+    reached_high: number;
+};
+
+/**
+ * Reason
+ */
+export type Reason = {
+    /**
+     * Term
+     */
+    term: string;
+    /**
+     * Effect Pp
+     */
+    effect_pp: number;
+    /**
+     * Direction
+     */
+    direction: string;
+};
+
+/**
+ * ReportResponse
+ *
+ * Model report data: `artifacts/report.json` as written by `just train`.
+ *
+ * `agent_model_beats_gbm` is False: the report page must say so (D-039).
+ */
+export type ReportResponse = {
+    /**
+     * Agent Model Beats Gbm
+     */
+    agent_model_beats_gbm: boolean;
+    /**
+     * N Districts
+     */
+    n_districts: number;
+    /**
+     * N Rows
+     */
+    n_rows: number;
+    /**
+     * N Agents
+     */
+    n_agents: number;
+    /**
+     * Losto Headline
+     */
+    losto_headline: {
+        [key: string]: unknown;
+    };
+    /**
+     * Loso
+     */
+    loso: {
+        [key: string]: unknown;
+    };
+    /**
+     * Loso Note
+     */
+    loso_note: string;
+    /**
+     * Betas
+     */
+    betas: {
+        [key: string]: unknown;
+    };
+    /**
+     * Gbm Losto Error Band Pp
+     */
+    gbm_losto_error_band_pp: {
+        [key: string]: unknown;
+    };
+    /**
+     * Sampling Band
+     */
+    sampling_band: {
+        [key: string]: unknown;
+    };
+    /**
+     * Sanity Table Pp
+     */
+    sanity_table_pp: {
+        [key: string]: unknown;
+    };
+    /**
+     * Recovery
+     */
+    recovery: {
+        [key: string]: unknown;
+    };
+    /**
+     * In Sample Mae Unanchored
+     */
+    in_sample_mae_unanchored: {
+        [key: string]: number;
+    };
+    /**
+     * Gbm In Sample Mae
+     */
+    gbm_in_sample_mae: number;
+    /**
+     * Pmjay Benefit Range Inr
+     */
+    pmjay_benefit_range_inr: Array<number>;
+    /**
+     * Decisions
+     */
+    decisions: string;
+};
+
+/**
+ * Result
+ *
+ * What point / low / high measure is given by `basis`.
+ *
+ * `all`: share of all households / births / people covered, % (NFHS-based, real schemes).
+ * `target_group`: uptake within the target group, % (custom policies; not comparable with
+ * `all`). Custom policies also carry `reach`.
+ */
+export type Result = {
+    /**
+     * Basis
+     */
+    basis: string;
+    /**
+     * Level
+     */
+    level: number;
+    /**
+     * Point
+     */
+    point: number;
+    /**
+     * Low
+     */
+    low: number;
+    /**
+     * High
+     */
+    high: number;
+    /**
+     * Low Confidence
+     */
+    low_confidence: boolean;
+    changes: Changes;
+    /**
+     * Sampling Half Width Pp
+     */
+    sampling_half_width_pp: number;
+    reach?: Reach | null;
+};
+
+/**
+ * SchemeInputs
+ *
+ * The slider values of one scheme (SPEC section 6).
+ */
+export type SchemeInputs = {
+    /**
+     * Cash Benefit Inr
+     */
+    cash_benefit_inr: number;
+    /**
+     * Document Count
+     */
+    document_count: number;
+    /**
+     * Requires Bank Account
+     */
+    requires_bank_account: boolean;
+    /**
+     * Application Burden
+     */
+    application_burden: number;
+    /**
+     * Benefit Immediacy
+     */
+    benefit_immediacy: number;
+};
+
+/**
+ * SchemeOut
+ */
+export type SchemeOut = {
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Label
+     */
+    label?: string;
+    /**
+     * Metric Base
+     */
+    metric_base: string;
+    defaults: SchemeInputs;
+    /**
+     * Defaults Vary By District
+     */
+    defaults_vary_by_district: boolean;
+    /**
+     * Non Cash
+     */
+    non_cash: boolean;
+    /**
+     * Assumed
+     */
+    assumed: Array<string>;
+    /**
+     * Ranges
+     */
+    ranges: {
+        [key: string]: Range2;
+    };
+    /**
+     * Real Envelope
+     */
+    real_envelope: {
+        [key: string]: Range2;
+    };
+};
+
+/**
+ * Setting
+ *
+ * One policy setting. `scheme` is the real scheme to start from.
+ *
+ * No `inputs` = the scheme's real settings. A `target_group` makes it a custom policy.
+ */
+export type Setting = {
+    /**
+     * Scheme
+     */
+    scheme: string;
+    inputs?: Inputs | null;
+    target_group?: TargetGroup | null;
+    /**
+     * Policy Name
+     */
+    policy_name?: string | null;
+};
+
+/**
+ * SimulateRequest
+ */
+export type SimulateRequest = {
+    /**
+     * Scheme
+     */
+    scheme: string;
+    inputs?: Inputs | null;
+    target_group?: TargetGroup | null;
+    /**
+     * Policy Name
+     */
+    policy_name?: string | null;
+    /**
+     * District Id
+     */
+    district_id: string;
+};
+
+/**
+ * SimulateResponse
+ */
+export type SimulateResponse = {
+    /**
+     * District Id
+     */
+    district_id: string;
+    /**
+     * District
+     */
+    district: string;
+    /**
+     * State
+     */
+    state: string;
+    /**
+     * Scheme
+     */
+    scheme: string;
+    /**
+     * Metric Base
+     */
+    metric_base: string;
+    /**
+     * Custom
+     */
+    custom: boolean;
+    /**
+     * Policy Name
+     */
+    policy_name: string | null;
+    result: Result;
+    /**
+     * Reasons
+     */
+    reasons: Array<Reason>;
+    /**
+     * Warnings
+     */
+    warnings: Array<WarningCode>;
+    real_inputs: Inputs;
+    used_inputs: Inputs;
+    /**
+     * State Level Traits
+     */
+    state_level_traits: Array<string>;
+};
+
+/**
+ * StateOut
+ */
+export type StateOut = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * N Districts
+     */
+    n_districts: number;
+    /**
+     * N With Data
+     */
+    n_with_data: number;
+};
+
+/**
+ * StateRow
+ */
+export type StateRow = {
+    /**
+     * District Id
+     */
+    district_id: string;
+    /**
+     * District
+     */
+    district: string;
+    /**
+     * Has Data
+     */
+    has_data: boolean;
+    /**
+     * Reason
+     */
+    reason?: string | null;
+    result?: Result | null;
+    /**
+     * Warnings
+     */
+    warnings?: Array<WarningCode>;
+};
+
+/**
+ * StateSimulateRequest
+ */
+export type StateSimulateRequest = {
+    /**
+     * Scheme
+     */
+    scheme: string;
+    inputs?: Inputs | null;
+    target_group?: TargetGroup | null;
+    /**
+     * Policy Name
+     */
+    policy_name?: string | null;
+    /**
+     * State
+     */
+    state: string;
+};
+
+/**
+ * StateSimulateResponse
+ */
+export type StateSimulateResponse = {
+    /**
+     * State
+     */
+    state: string;
+    /**
+     * Scheme
+     */
+    scheme: string;
+    /**
+     * Metric Base
+     */
+    metric_base: string;
+    /**
+     * Custom
+     */
+    custom: boolean;
+    /**
+     * Districts
+     */
+    districts: Array<StateRow>;
+};
+
+/**
+ * TargetGroup
+ *
+ * Custom-policy target group (SPEC 7.2). None means no filter on that trait.
+ */
+export type TargetGroup = {
+    /**
+     * Age 60 Plus
+     */
+    age_60_plus?: boolean | null;
+    /**
+     * Female
+     */
+    female?: boolean | null;
+    /**
+     * Disabled
+     */
+    disabled?: boolean | null;
+    /**
+     * Rural
+     */
+    rural?: boolean | null;
+    /**
+     * Unbanked
+     */
+    unbanked?: boolean | null;
+};
+
+/**
+ * ValidationError
+ */
+export type ValidationError = {
+    /**
+     * Location
+     */
+    loc: Array<string | number>;
+    /**
+     * Message
+     */
+    msg: string;
+    /**
+     * Error Type
+     */
+    type: string;
+    /**
+     * Input
+     */
+    input?: unknown;
+    /**
+     * Context
+     */
+    ctx?: {
+        [key: string]: unknown;
+    };
+};
+
+/**
+ * WarningCode
+ */
+export type WarningCode = 'survey_estimate' | 'low_confidence' | 'new_policy' | 'out_of_range' | 'partial_data';
 
 export type GetHealthData = {
     body?: never;
@@ -29,3 +698,178 @@ export type GetHealthResponses = {
 };
 
 export type GetHealthResponse = GetHealthResponses[keyof GetHealthResponses];
+
+export type GetStatesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/states';
+};
+
+export type GetStatesResponses = {
+    /**
+     * Response Getstates
+     *
+     * Successful Response
+     */
+    200: Array<StateOut>;
+};
+
+export type GetStatesResponse = GetStatesResponses[keyof GetStatesResponses];
+
+export type GetDistrictsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * State
+         */
+        state?: string | null;
+    };
+    url: '/api/districts';
+};
+
+export type GetDistrictsErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorBody;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetDistrictsError = GetDistrictsErrors[keyof GetDistrictsErrors];
+
+export type GetDistrictsResponses = {
+    /**
+     * Response Getdistricts
+     *
+     * Successful Response
+     */
+    200: Array<DistrictOut>;
+};
+
+export type GetDistrictsResponse = GetDistrictsResponses[keyof GetDistrictsResponses];
+
+export type GetSchemesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/schemes';
+};
+
+export type GetSchemesResponses = {
+    /**
+     * Response Getschemes
+     *
+     * Successful Response
+     */
+    200: Array<SchemeOut>;
+};
+
+export type GetSchemesResponse = GetSchemesResponses[keyof GetSchemesResponses];
+
+export type SimulateData = {
+    body: SimulateRequest;
+    path?: never;
+    query?: never;
+    url: '/api/simulate';
+};
+
+export type SimulateErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorBody;
+    /**
+     * Unprocessable Entity
+     */
+    422: ErrorBody;
+};
+
+export type SimulateError = SimulateErrors[keyof SimulateErrors];
+
+export type SimulateResponses = {
+    /**
+     * Successful Response
+     */
+    200: SimulateResponse;
+};
+
+export type SimulateResponse2 = SimulateResponses[keyof SimulateResponses];
+
+export type SimulateStateData = {
+    body: StateSimulateRequest;
+    path?: never;
+    query?: never;
+    url: '/api/simulate/state';
+};
+
+export type SimulateStateErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorBody;
+    /**
+     * Unprocessable Entity
+     */
+    422: ErrorBody;
+};
+
+export type SimulateStateError = SimulateStateErrors[keyof SimulateStateErrors];
+
+export type SimulateStateResponses = {
+    /**
+     * Successful Response
+     */
+    200: StateSimulateResponse;
+};
+
+export type SimulateStateResponse = SimulateStateResponses[keyof SimulateStateResponses];
+
+export type CompareData = {
+    body: CompareRequest;
+    path?: never;
+    query?: never;
+    url: '/api/compare';
+};
+
+export type CompareErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorBody;
+    /**
+     * Unprocessable Entity
+     */
+    422: ErrorBody;
+};
+
+export type CompareError = CompareErrors[keyof CompareErrors];
+
+export type CompareResponses = {
+    /**
+     * Successful Response
+     */
+    200: CompareResponse;
+};
+
+export type CompareResponse2 = CompareResponses[keyof CompareResponses];
+
+export type GetReportData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/report';
+};
+
+export type GetReportResponses = {
+    /**
+     * Successful Response
+     */
+    200: ReportResponse;
+};
+
+export type GetReportResponse = GetReportResponses[keyof GetReportResponses];

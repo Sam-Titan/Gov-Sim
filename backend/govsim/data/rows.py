@@ -83,11 +83,27 @@ def _scheme_row_values(code: str, state: str, rural_share: float) -> dict[str, f
     }
 
 
-def build_rows(d: pl.DataFrame) -> pl.DataFrame:
+def load_state_baseline(processed: Path = PROCESSED) -> dict[tuple[str, str], float]:
+    """Official NFHS-4 state value, {(nfhs column, state): %}, from the state compendium."""
+    t = pl.read_parquet(processed / "nfhs4_state_baseline.parquet")
+    out: dict[tuple[str, str], float] = {}
+    for col in ("health_insurance_nfhs4", "clean_fuel_nfhs4"):
+        for st, v in zip(t["state"], t[col], strict=True):
+            if v is not None:
+                out[(col, st)] = float(v)
+    return out
+
+
+def build_rows(
+    d: pl.DataFrame, state_baseline: dict[tuple[str, str], float] | None = None
+) -> pl.DataFrame:
     """One row per (district, scheme, era). era 0 = NFHS-5; era 1 = NFHS-4 (JSY, SBM only).
 
     Baseline b (D-038): PM-JAY / PMUY = NFHS-4 value (state mean if missing, flagged);
     JSY / SBM = 0. Districts with no usable baseline are dropped for PM-JAY / PMUY.
+    With `state_baseline` (the official NFHS-4 state value, D-046), a state with no NFHS-4 district
+    value at all (NCT Delhi, Telangana) uses that value instead of being dropped, flagged partial.
+    Training (Phase 2) does not pass it, so its rows and numbers are unchanged.
     """
     out: list[dict] = []
     for code in CODES:
@@ -100,6 +116,8 @@ def build_rows(d: pl.DataFrame) -> pl.DataFrame:
                 v = r[c4]
                 if v is None:
                     v = smean.get(r["nfhs_state"])
+                    if v is None and state_baseline:
+                        v = state_baseline.get((c4, r["nfhs_state"]))
                     partial = True
                 base_ok = v is not None
                 b = (v or 0.0) / 100.0
@@ -117,6 +135,41 @@ def build_rows(d: pl.DataFrame) -> pl.DataFrame:
             if not sch.nfhs4_is_baseline and r[c4] is not None:
                 out.append({**common, "era": 1, "target": r[c4]})
     return pl.DataFrame(out).with_columns(pl.col("district").cast(pl.Int64))
+
+
+def births_per_woman(processed: Path = PROCESSED) -> pl.DataFrame:
+    """Estimated births in 5 years per woman aged 15-49, per 2011 district (estimated).
+
+    Census children 0-6 x 5/7 divided by Census women 15-49. 2011 ratio, ignores child
+    deaths and migration (D-042).
+    """
+    births = pl.read_parquet(processed / "eligible_counts.parquet").select(
+        "pc11_s_id", "pc11_d_id", "jsy_births_5y_est_total"
+    )
+    women = pl.read_parquet(processed / "census_age.parquet").select(
+        "pc11_s_id", "pc11_d_id", "women_15_49"
+    )
+    return births.join(women, on=["pc11_s_id", "pc11_d_id"]).select(
+        "pc11_s_id",
+        "pc11_d_id",
+        (pl.col("jsy_births_5y_est_total") / pl.col("women_15_49")).alias("births_per_woman"),
+    )
+
+
+def sampling_n(d: pl.DataFrame, processed: Path = PROCESSED) -> dict[str, np.ndarray]:
+    """Sample size per district (rows of `d`) behind each scheme's NFHS value.
+
+    PM-JAY, PMUY, SBM: households interviewed. JSY: estimated births = women interviewed x
+    Census births per woman 15-49 (the sheets print no births count, D-042).
+    """
+    n_tab = pl.read_parquet(processed / "nfhs_sample_sizes.parquet")
+    j = d.select("nfhs_file", "pc11_s_id", "pc11_d_id").join(
+        n_tab, left_on="nfhs_file", right_on="file", how="left"
+    )
+    j = j.join(births_per_woman(processed), on=["pc11_s_id", "pc11_d_id"], how="left")
+    hh = j["n_households"].to_numpy().astype(float)
+    births = (j["n_women"] * j["births_per_woman"]).to_numpy().astype(float)
+    return {"pmjay": hh, "pmuy": hh, "sbm": hh, "jsy": births}
 
 
 def share_to_array(d: pl.DataFrame, col: str, scale: float = 1.0) -> np.ndarray:

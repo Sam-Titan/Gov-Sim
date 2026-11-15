@@ -240,6 +240,19 @@ PM-JAY and PMUY: households. SBM: people. JSY: births in the last 5 years, estim
 children aged 0-6 x 5/7 (ignores child deaths and migration). Rural, urban and total.
 All-India check: {elig["pmjay_households_total"].sum():,} households,
 {elig["sbm_population_total"].sum():,} people.
+
+## JSY births estimate and NFHS-4 state baseline (Phase 3, D-042, D-046)
+- **JSY sample size:** births in the last 5 years are not printed on the NFHS sheets, so the
+  sampling band uses an estimate: women interviewed x (Census 2011 children 0-6 x 5/7 / Census
+  2011 women 15-49). `census_age.parquet` has `women_15_49` (C-13, females aged 15-49; 311,681,858
+  in India); births per woman: median 0.38, range 0.19 to 0.79. 2011 ratio applied to 2019-21;
+  ignores child deaths and migration. Label: estimated.
+- **NFHS-4 state value for PM-JAY and PMUY:** `nfhs4_state_baseline.parquet` (37 states/UTs, no
+  missing values) from the NFHS-5 state compendium, NFHS-4 total column (same two PDFs, MANIFEST
+  rows 751 and 752). It is used only where no district of a state has an NFHS-4 value: NCT Delhi
+  (9 mapped districts) and Telangana (9). Health insurance: Delhi 15.7, Telangana 66.4; clean fuel:
+  Delhi 97.9, Telangana 67.3. Rows are flagged `partial_data`. It is a target-type value, so it is
+  in its own file and never a trait. Phase 2 training does not use it (rows and numbers unchanged).
 """
     path.write_text(text, encoding="utf-8")
     print(f"report -> {path}")

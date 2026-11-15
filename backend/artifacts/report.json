@@ -346,9 +346,18 @@
     }
   },
   "sampling_band": {
-    "deff_assumed_by_team": 2.0,
+    "deff": {
+      "value": 2.0,
+      "label": "assumed by team"
+    },
     "method": "SE = sqrt(deff * p * (1-p) / n); band = +-1.2816 * SE (10th-90th percentile)",
-    "n_used": "households (PM-JAY, PMUY, SBM); women interviewed for JSY (upper bound on births, so the JSY band is understated)",
+    "n_used": {
+      "pmjay": "households interviewed (printed on the NFHS sheet)",
+      "pmuy": "households interviewed (printed on the NFHS sheet)",
+      "sbm": "households interviewed (printed on the NFHS sheet)",
+      "jsy": "estimated births = women interviewed x (Census 2011 children 0-6 x 5/7 / Census 2011 women 15-49); label: estimated (D-042)"
+    },
+    "jsy_n_limits": "2011 ratio applied to 2019-21; ignores child deaths and migration",
     "by_scheme": {
       "pmjay": {
         "median_half_width_pp": 2.7,
@@ -361,8 +370,8 @@
         "share_over_30pp_wide_at_real_settings": 0.0
       },
       "jsy": {
-        "median_half_width_pp": 1.49,
-        "max_half_width_pp": 3.38,
+        "median_half_width_pp": 2.34,
+        "max_half_width_pp": 6.0,
         "share_over_30pp_wide_at_real_settings": 0.0
       },
       "sbm": {

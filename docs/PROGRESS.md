@@ -3,15 +3,15 @@
 Update after every task. Newest log entries at the top.
 
 ## Current phase
-**Phase 2 — Model** (started 2026-11-15)
+**Phase 3 — Fast model + API** (signed off 2026-11-15). Next: Phase 4, not started.
 
 ## Phase status
 | Phase | Status | Sam signed off |
 |---|---|---|
 | 0 Setup | ✅ Done | ✅ Sam, 2026-11-15 |
 | 1 Data | ✅ Done | ✅ Sam, 2026-11-15 |
-| 2 Model | ✅ Done, waiting for sign-off | — |
-| 3 Fast model + API | ⏳ Not started | — |
+| 2 Model | ✅ Done | ✅ Sam, 2026-11-15 |
+| 3 Fast model + API | ✅ Done | ✅ Sam, 2026-11-15 |
 | 4 Simulator page | ⏳ Not started | — |
 | 5 Other pages | ⏳ Not started | — |
 | 6 Downloads + Hindi | ⏳ Not started | — |
@@ -32,13 +32,46 @@ Update after every task. Newest log entries at the top.
 - [x] Follow-ups (D-036): `xlrd`, Census C-13 age 60+ (35 xls, 640 districts), drop widows/electricity, beta7 deprivation score, beta2 state income (Economic Survey table 1.11A)
 - [x] **Phase 1 done.** `just check` and `just test` pass. Waiting for Sam's sign-off.
 
+## Phase 3 tasks
+- [x] JSY sampling band: n = women interviewed x (Census children 0-6 x 5/7 / Census women 15-49), labelled "estimated" (D-042). New column `women_15_49` in `census_age.parquet`. JSY median half-width ±1.49 -> ±2.34 pp (max 3.38 -> 6.0)
+- [x] deff 2.0 kept, labelled "assumed by team" in `report.json` (`sampling_band.deff`)
+- [x] Documents effect for all agents: left out (Sam)
+- [x] Speed check, then **no surrogate** (D-043, Sam approved). SPEC 5.4 and PHASES updated
+- [x] `govsim/service.py`: live anchored model at weak / central / strong beta sets, reasons (top 3), warnings
+- [x] Routes: `/states`, `/districts`, `/schemes`, `/simulate`, `/simulate/state`, `/compare`, `/report` (Pydantic, `operation_id` set). Client regenerated (`just gen-api`); mock updated to the real shape
+- [x] No-data districts: `/districts` lists all 710 with `has_data` + `reason`; `/simulate` returns 404 `{code: "no_data", reason}`; `/simulate/state` marks them `has_data: false`
+- [x] Sam's changes before sign-off: custom policies report group uptake + people reached (D-044, SPEC 7.2); current state shown (Warangal -> Telangana, D-045); no-baseline rule checked (D-045)
+- [x] NFHS-4 state value for NCT Delhi and Telangana as PM-JAY / PMUY baseline, flagged `partial_data` (D-046); `parse_state.py`, `nfhs4_state_baseline.parquet`, DATA_REPORT, tests
+- [x] 78 backend tests, `just check` and `just test` pass
+- [x] Phase 3 signed off by Sam, 2026-11-15 (once D-046 was in).
+
+## Phase 3 results (2026-11-15)
+**Speed, through the HTTP routes (TestClient, median / worst of 30, ms).** Model only: one district 6 / 17, state of 71 districts 6 / 12, all 629 districts 25.
+| Route | Median | Worst |
+|---|---|---|
+| `POST /simulate` | 15 | 20 |
+| `POST /simulate` (custom policy) | 13 | 23 |
+| `POST /simulate/state` (Uttar Pradesh, 75 rows) | 14 | 25 |
+| `POST /compare` (two results) | 21 | 31 |
+Under 200 ms. Start-up 0.3 s for the model plus a few seconds of imports. The strict 200 ms test runs locally only (skipped when `CI` is set); CI uses a 1 s bound.
+
+**Warnings.** `survey_estimate` always; `low_confidence` over 30 pp; `new_policy` for every custom policy; `out_of_range` ("Beyond what real schemes do") when a slider is outside the real-scheme envelope (cash 600 to 5,00,000; documents 1 to 6; burden 2 to 3; speed 2 to 4); `partial_data` when the PM-JAY/PMUY baseline came from a state mean, or a custom policy targets "unbanked".
+**Districts.** 710 listed (704 NFHS sheets + 6 Census districts with no sheet). 629 have data; 81 do not: 70 `unmapped`, 5 `no_state_income`, 6 `no_nfhs_sheet` (Chandigarh, Lakshadweep, Vidisha, and the split parents Jaintia Hills, Barddhaman, Warangal). `name_hi` is null (no Hindi district names in our data).
+**Sam's changes, done (D-044, D-045).**
+- **Custom policies:** `result.basis = "target_group"`: uptake within the group (%, range = weak/central/strong betas x NFHS sampling band) and `result.reach` (estimated count: Census 2011 base x group share x uptake; households for PM-JAY/PMUY, births for JSY, people for SBM). `new_policy` stays. Example (Araria, PMUY, rural unbanked women): group 8.8% of 5.7 lakh households (about 50,000), uptake 5.7% (2.1 to 10.6), about 2,850 reached (1,070 to 5,300). `/compare` returns `comparable: false` between a custom policy and a real scheme. Groups under 10 of 500 agents return `group_too_small`.
+- **Current state:** Warangal is listed under Telangana; `pc11_s_id` kept. It was the only census-only district with a changed state (Ladakh and Telangana districts with NFHS sheets already use the current state). Start-up fails loudly on an unreviewed split.
+- **No baseline:** D-038 already used the household-weighted state mean (flagged `partial_data`) for non-Telangana districts, so nothing changed there. **Not all of them can be filled:** NCT Delhi has no NFHS-4 value for any of its 9 mapped districts (re-drawn after 2015-16), so it has no state mean either. **Done (D-046):** Delhi and Telangana now use the official NFHS-4 state value (insurance 15.7 / 66.4, clean fuel 97.9 / 67.3), flagged `partial_data`. PM-JAY and PMUY have 629 rows each. Known limit: in 167 of 629 PM-JAY rows (8 of the 18 new) the NFHS-5 value is not above the baseline, so the anchor is baseline + 0.5 pp (23 of 629 for PMUY).
+
+**Choices made while building (approved by Sam).** JSY cash slider replaces the rural value (urban keeps the real ratio). PM-JAY cash outside ₹2,50,000 to ₹10,00,000 returns 422. `name_hi` is null. Chandigarh and Lakshadweep use their own name as the state.
+**Speed with the custom policy (HTTP, median / worst ms):** `/simulate` 21 / 39; `/simulate/state` (Uttar Pradesh) 31 / 64. Still under 200 ms.
+
 ## Phase 2 tasks
 - [x] Plan, slider values (D-037), model design (D-038), hybrid decision (D-039), β values and range rule (D-040), anchor and bands (D-041)
 - [x] Sampler, eligibility, adoption model (monthly-income β2), logit anchor, slider change, range rule (`govsim/hybrid.py`), PM-JAY benefit cap
 - [x] NFHS sample sizes parsed for all 704 sheets (`scripts/parse_sample_sizes.py`, `nfhs_sample_sizes.parquet`)
 - [x] β0, β7 refitted (β2, 3, 5, 6, 8 fixed); LOSTO headline + LOSO; GBM bands; sampling bands; sanity table; recovery -> `backend/artifacts/report.json`, `betas.json`
 - [x] `just check` and `just test` pass (47 backend tests)
-- [ ] **Waiting for Sam's Phase 2 sign-off.**
+- [x] Phase 2 signed off by Sam, 2026-11-15 (committed and pushed by Sam).
 
 ## Phase 2 results (2026-11-15, `just train`, 21 s)
 Data: 629 districts, 3,614 rows (see D-038 for exclusions and baselines).
@@ -80,7 +113,8 @@ One oddity: PMUY +1 document is -0.30 (central) and -0.25 (strong): the sets are
 Suggested commit message: `Phase 2 model: hybrid output (NFHS level + anchored agent-model change), fixed assumed betas, sampling bands, LOSTO/LOSO report`
 
 ## Waiting on Sam
-- Phase 2 sign-off (or changes). Open for you: JSY band is understated (no births count); deff 2.0 is an assumption; optional documents effect not used.
+- Nothing. Phase 4 (simulator page) has not started; say "start Phase 4" to begin.
+- Notes carried forward: deff 2.0 is an assumption; JSY n is an estimate (2011 ratio); documents effect not used.
 
 ## Blockers
 - 70 NFHS-5 districts (mostly new since 2011, 22 of 31 in Telangana) have no 2011 parent. An official source is needed (LGD has a captcha, so not scriptable). See decision 1 below.
@@ -91,7 +125,7 @@ Suggested commit message: `Phase 2 model: hybrid output (NFHS level + anchored a
 - GBM LOSO MAE: 30.8 pp
 - Agent model LOSTO MAE: 26.1 pp (naive 23.0); GBM LOSTO (headline): 10.5 pp
 - GBM LOSTO MAE: 10.5 pp
-- `/simulate` speed: —
+- `/simulate` speed: 15 ms median, 20 ms worst (HTTP, no surrogate, D-043)
 
 ## Findings: NFHS-5 district data (2026-11-15)
 Source: DHS Program, `dhsprogram.com/pubs/pdf/OF43/<ST>_<District>.pdf`. `robots.txt` does not block `/pubs/pdf`. Licence: Govt of India (MoHFW/IIPS) public report; no licence text on the page.
@@ -140,6 +174,10 @@ D-033 V1 uses 634 mapped districts; D-034 Vidisha and Lakshadweep missing; D-035
 - Phase 1 sign-off only. Open note for Phase 2: Ladakh and Dadra & Nagar Haveli and Daman & Diu (5 districts) have no state income value.
 
 ## Log
+- 2026-11-15 — Phase 3 signed off by Sam after D-046 (NFHS-4 state value for Delhi and Telangana). 78 tests, `just check` and `just test` pass. Stopped; Phase 4 not started. Suggested commit message: `Phase 3: JSY births band, live anchored model (no surrogate), API routes, group uptake for custom policies, NFHS-4 state baseline`
+- 2026-11-15 — Phase 3 built. JSY births band (D-042), deff labelled assumed, no surrogate (D-043). Live service + 7 routes + warnings + reasons; no-data districts handled; client regenerated; 68 tests, `just check` clean. Stopped for Phase 3 sign-off.
+- 2026-11-15 — Phase 3 changes from Sam: custom-policy group uptake + reach (D-044), current state for Warangal (D-045), no-baseline check (Delhi has no state mean). 76 tests, `just check` and `just test` pass. Stopped for Phase 3 sign-off. Suggested commit message: `Phase 3: JSY births band, live anchored model (no surrogate), API routes, tests`
+- 2026-11-15 — Phase 2 signed off by Sam; code committed and pushed by Sam. Stopped; Phase 3 not started.
 - 2026-11-15 — Phase 2 final (D-039 to D-041). NFHS sample sizes parsed; hybrid module (logit anchor, slider change, sampling band, end-to-end range, low-confidence); PM-JAY cap; β0, β7 refitted with β2, 3, 5, 6, 8 fixed; report.json written; 47 tests, `just check` clean. Stopped for Phase 2 sign-off.
 - 2026-11-15 — Phase 2 built (D-037, D-038). Sampler, eligibility, adoption model, Nelder-Mead calibration, recovery test, GBM, LOSO/LOSTO, `just train`. 40 backend tests, `just check` clean. Agent model does not beat the GBM; β2 and β6 have the wrong sign (details above). Stopped for Sam.
 - 2026-11-15 — Phase 1 follow-ups (D-036). Installed `xlrd` (approved). Downloaded C-13 (35 xls) and Economic Survey table 1.11A (MANIFEST 787 rows). Added age 60+ share, beta7 `deprivation_score`, `state_per_capita_nsdp_2021_22`; removed electricity trait; widows dropped. SPEC 5.1, 7.2, 10 and DATA_REPORT updated. 28 backend tests, `just check` clean. Phase 1 marked done; stopped for sign-off.

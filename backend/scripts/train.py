@@ -9,14 +9,13 @@ import json
 from pathlib import Path
 
 import numpy as np
-import polars as pl
 
 from govsim.agents.adoption import BETA1, FITTED, TRUST, build_design
 from govsim.agents.sampler import N_AGENTS, SEED, sample_agents
 from govsim.baseline.gbm import feature_table, fit_predict
 from govsim.calibrate.fit import fit, mae
 from govsim.calibrate.recovery import recover
-from govsim.data.rows import PROCESSED, build_rows, load_districts
+from govsim.data.rows import build_rows, load_districts, sampling_n
 from govsim.evaluate.cv import cross_validate, gbm_losto_errors, summarize
 from govsim.evaluate.sanity import sanity_table
 from govsim.hybrid import DEFF, LOW_CONFIDENCE_PP, sampling_band
@@ -96,22 +95,23 @@ def main() -> None:
     }
 
     # 4. NFHS sampling band at each district's actual value (D-041).
-    n_tab = pl.read_parquet(PROCESSED / "nfhs_sample_sizes.parquet")
-    n_map = dict(
-        zip(n_tab["file"], zip(n_tab["n_households"], n_tab["n_women"], strict=True), strict=True)
-    )
-    files = d["nfhs_file"].to_numpy()[rows["district"].to_numpy()]
-    n_hh = np.array([n_map[f][0] for f in files], dtype=float)
-    n_women = np.array([n_map[f][1] for f in files], dtype=float)
-    n = np.where(schemes == "jsy", n_women, n_hh)
+    n_by_scheme = sampling_n(d)
+    di = rows["district"].to_numpy()
+    n = np.array([n_by_scheme[sc][i] for sc, i in zip(schemes, di, strict=True)])
     lo, hi = sampling_band(y, n)
     report["sampling_band"] = {
-        "deff_assumed_by_team": DEFF,
+        "deff": {"value": DEFF, "label": "assumed by team"},
         "method": "SE = sqrt(deff * p * (1-p) / n); band = +-1.2816 * SE (10th-90th percentile)",
-        "n_used": (
-            "households (PM-JAY, PMUY, SBM); women interviewed for JSY "
-            "(upper bound on births, so the JSY band is understated)"
-        ),
+        "n_used": {
+            "pmjay": "households interviewed (printed on the NFHS sheet)",
+            "pmuy": "households interviewed (printed on the NFHS sheet)",
+            "sbm": "households interviewed (printed on the NFHS sheet)",
+            "jsy": (
+                "estimated births = women interviewed x (Census 2011 children 0-6 x 5/7 / "
+                "Census 2011 women 15-49); label: estimated (D-042)"
+            ),
+        },
+        "jsy_n_limits": ("2011 ratio applied to 2019-21; ignores child deaths and migration"),
         "by_scheme": {
             s: {
                 "median_half_width_pp": _pct(hi[(schemes == s) & (era == 0)], 50),

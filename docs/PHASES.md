@@ -48,8 +48,7 @@ table, one map file, and a data report.
 β values make sense (signs as expected).
 
 ## Phase 3 — Fast model + API
-- Generate many agent-model runs (random sliders × districts).
-- Train LightGBM quantile surrogate (p10 / p50 / p90). Check it against the agent model.
+- Live anchored agent model service (no surrogate, D-043); JSY sampling band with estimated births (D-042).
 - Reasons (top 3 terms) and warnings (`out_of_range`, `new_policy`, `partial_data`).
 - All routes in SPEC §8 with Pydantic models. Regenerate client with Hey API.
 

@@ -11,9 +11,10 @@ Source URLs and download dates are in `data/MANIFEST.csv`. Row counts and checks
 | `nfhs_state_traits.parquet` | State/UT values: women bank account, phone, internet | NFHS-5 state fact sheet compendium (Phase I, II) | as above |
 | `census2011_districts.parquet` | 640 districts: households, population, children 0-6, SC, ST, literate, workers | Census 2011 Primary Census Abstract, censusindia.gov.in | ORGI public data; no licence stated |
 | `census_disability.parquet` | 640 districts: disabled persons (all, 20+, 60+) | Census 2011 table C-20 | as above |
-| `census_age.parquet` | 640 districts: all-ages persons and persons aged 60+ | Census 2011 table C-13 (single-year age) | as above |
+| `census_age.parquet` | 640 districts: all-ages persons, persons aged 60+ and women aged 15-49 (JSY births estimate, D-042) | Census 2011 table C-13 (single-year age) | as above |
 | `state_income.parquet` | State/UT per-capita NSDP, current prices, 2021-22 | Economic Survey 2023-24 table 1.11A (state DES via MoSPI), indiabudget.gov.in | Govt of India public report; no licence text |
 | `nfhs_sample_sizes.parquet` | 704 districts: households, women and men interviewed (printed on each sheet) | NFHS-5 district fact sheets (`parse_sample_sizes.py`) | as above |
+| `nfhs4_state_baseline.parquet` | 37 states/UTs: NFHS-4 state value of health insurance and clean fuel (PM-JAY / PMUY baseline where districts have none, D-046) | NFHS-5 state compendium, NFHS-4 column (`parse_state.py`) | as above |
 | `eligible_counts.parquet` | Bases per scheme (households, people, births estimate) | Derived from the Census PCA | as above |
 | `district_map.parquet` | NFHS district to Census 2011 district (634 of 704 mapped) | Our join (exact names + reviewed spellings) | Derived; inputs as above |
 | `district_traits.parquet` | One row per NFHS district with all traits, `deprivation_score` (beta7), state income (beta2) and flags (`in_v1`, `state_traits_partial_data`) | Derived from the files above | Derived |

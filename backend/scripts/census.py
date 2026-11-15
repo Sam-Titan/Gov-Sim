@@ -131,23 +131,29 @@ def build_disability() -> pl.DataFrame:
 
 
 def read_c13(path: Path) -> list[dict[str, object]]:
-    """Per district: all-ages persons and persons aged 60+ (ages 60-99 and '100+')."""
+    """Per district: all-ages persons, persons aged 60+ (ages 60-99 and '100+') and women 15-49."""
     ws = xlrd.open_workbook(str(path)).sheet_by_index(0)
-    keys: dict[tuple[str, str], tuple[int, int]] = {}
+    keys: dict[tuple[str, str], dict[str, int]] = {}
     for i in range(ws.nrows):
         r = ws.row_values(i)
         if not r[1] or r[2] in ("", "000") or not isinstance(r[5], float):
             continue
-        key = (str(r[1]), str(r[2]))
-        all_ages, over60 = keys.get(key, (0, 0))
+        acc = keys.setdefault((str(r[1]), str(r[2])), {"all": 0, "60": 0, "w": 0})
         age = r[4]
         if age == "All ages":
-            all_ages = int(r[5])
+            acc["all"] = int(r[5])
         elif age == "100+" or (isinstance(age, float) and age >= 60):
-            over60 += int(r[5])
-        keys[key] = (all_ages, over60)
+            acc["60"] += int(r[5])
+        if isinstance(age, float) and 15 <= age <= 49:
+            acc["w"] += int(r[7])  # column 7 = Females, Total block
     return [
-        {"pc11_s_id": k[0], "pc11_d_id": k[1], "age_all": v[0], "age_60plus": v[1]}
+        {
+            "pc11_s_id": k[0],
+            "pc11_d_id": k[1],
+            "age_all": v["all"],
+            "age_60plus": v["60"],
+            "women_15_49": v["w"],
+        }
         for k, v in keys.items()
     ]
 
