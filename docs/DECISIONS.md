@@ -101,3 +101,8 @@ SPEC §10 toolkit).
 `@testing-library/react` and `jsdom` are added for vitest. shadcn's own helper packages
 (clsx, tailwind-merge, class-variance-authority, etc.) are also allowed.
 **Why:** approved by Sam. Needed to test React components.
+
+## D-025 — TypeScript pinned to 5.x (2026-11-15)
+`typescript@5` in the frontend, not 7.
+**Why:** Hey API (`@hey-api/openapi-ts` 0.99) crashes on TypeScript 7 (`ts.SyntaxKind` is
+missing). Revisit when Hey API supports TS 7.
