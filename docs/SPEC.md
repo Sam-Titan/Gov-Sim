@@ -104,23 +104,25 @@ Rules:
 |---|---|
 | β0 | Baseline (intercept) |
 | β1 | Trust in government (no direct data in V1 — district-level latent value with a fixed prior; documented assumption) |
-| β2 | Benefit value relative to income (cash or cash-equivalent value, e.g. insurance cover). Income = the state per-capita NSDP trait (2021-22, nominal), same for all districts of a state; a national figure was not needed (D-036). Weakly estimated; PM-JAY value set from official guidelines in Phase 2 and cited |
+| β2 | Benefit value relative to income (cash or cash-equivalent value, e.g. insurance cover). Income = the state per-capita NSDP trait (2021-22, nominal), same for all districts of a state, divided by 12 (monthly income, D-040); a national figure was not needed (D-036). Weakly estimated; PM-JAY value set from official guidelines in Phase 2 and cited |
 | β3 | Documents needed × illiterate. Weakly estimated |
 | β5 | Application burden (steps/visits, 1–5). Weakly estimated |
 | β6 | Benefit speed (1–5). Weakly estimated |
 | β7 | District deprivation. Score = mean of six sign-adjusted z-scores over the 704 NFHS districts (women literate, women 10+ years schooling, female school attendance, birth registration: low is deprived; women married before 18, population below 15: high is deprived). Non-leaking NFHS-5 traits only (D-036) |
 | β8 | Bank account needed × unbanked. Weakly estimated; dropped in Phase 2 if it cannot be estimated (D-031) |
 
-- Calibrate β with scipy (Nelder-Mead) to match NFHS district values.
-- Check: β recovery test on simulated data (as in the demo bulletin).
+- **β handling (D-039):** β2, β3, β5, β6, β8 are fixed assumed values, each with a low and a high value (shown on the report page, labelled "assumed by team" or with a citation). β1 is fixed (assumed). Only β0 and β7 (and the nuisance `era_shift`) are fitted, with scipy Nelder-Mead to NFHS district values, common random numbers.
+- The agent model is used for **slider changes only**, as the difference between the user's settings and the scheme's real settings, **anchored in logit space** so it starts at the district's actual NFHS-5 value (D-041, see 5.4).
+- Check: β recovery test on simulated data (as in the demo bulletin), now for the fitted terms.
 
-### 5.2 Baseline
+### 5.2 Baseline (also the district-level predictor, D-039)
+- The GBM is the baseline in the model report (D-041). The "from data" level shown to users is the actual NFHS-5 value of the district.
 - LightGBM (GBM) trained directly on district features → uptake. **Never deleted.**
 
 ### 5.3 Evaluation
-- LOSO: leave-one-scheme-out (headline).
-- LOSTO: leave-one-state-out (geographic test).
-- Report MAE (pp) for agent model vs GBM. Known weaknesses:
+- **LOSTO: leave-one-state-out (headline, D-039).**
+- LOSO: leave-one-scheme-out. Kept in the report with the note that 4 schemes are too few: held-out schemes have slider values never seen in training, so no model predicts them well.
+- Report MAE (pp) for agent model vs GBM. **The agent model does not beat the GBM** (Phase 2: LOSTO 14.1 vs 10.5 pp; LOSO 32.1 vs 30.8 pp); the report page says so. Known weaknesses:
   - Only 4 schemes, all survey proxies from one survey (NFHS), so scheme-feature effects
     (β2, β3, β5, β6, β8) are weakly identified and LOSO is noisy. Differences between schemes are
     partly differences between survey questions.
@@ -129,7 +131,9 @@ Rules:
   - Time: two points (NFHS-4, NFHS-5) only; no Telangana NFHS-4.
 
 ### 5.4 Fast surrogate (instant sliders)
-- Run the calibrated agent model on many random slider settings × all districts.
+- **Output (D-039, D-041):** result = actual NFHS-5 value of the district ("from data") + agent-model change from the scheme's real settings to the user's settings ("model assumption"), anchored in logit space. Custom policies: the user picks a real scheme to start from; always the `new_policy` label.
+- **Range (D-040, D-041)** = NFHS sampling band (SE = sqrt(deff x p(1-p)/n), n from the sheet, deff 2 assumed, 10th-90th pct) + the spread of the slider change across the weak / central / strong β sets, added end to end. `low_confidence` label when wider than 30 pp.
+- Run the agent model (at the fixed β sets) on many random slider settings × all districts.
 - Train LightGBM quantile models (10th / 50th / 90th percentile) on those runs → range.
 - Save with joblib to `backend/artifacts/`.
 - **Reasons:** top 3 β terms that change uptake most for that district (from the agent
@@ -138,6 +142,7 @@ Rules:
   - `out_of_range`: a slider is outside the values seen in training.
   - `new_policy`: a custom policy is far from all real schemes → wider range + label.
   - `partial_data`: the scheme has no real data for this state or time point (e.g. Telangana has no NFHS-4 value).
+  - `low_confidence`: the range is wider than 30 pp.
   - `survey_estimate`: shown on every result for the 4 NFHS schemes. Text: "Based on a
     household survey (NFHS), not official sign-up counts. District values carry sampling
     error and cover more than this scheme alone." Both languages.
@@ -145,14 +150,14 @@ Rules:
 ## 6. Scheme inputs (sliders)
 | Field | Type | Range |
 |---|---|---|
-| `cash_benefit_inr` | number | 0 – 50,000 (benefit value; shown as "benefit value relative to income") |
+| `cash_benefit_inr` | number | 0 – 5,00,000 (PM-JAY: ₹2,50,000 – ₹10,00,000, half to double the real cover), log-scale slider (benefit value; β2 uses `log(1 + benefit / income)`; PM-JAY is labelled "non-cash cover"; D-037) |
 | `document_count` | int | 0 – 8 |
 | `requires_bank_account` | bool | — |
 | `application_burden` | int | 1 – 5 |
 | `benefit_immediacy` | int | 1 – 5 |
 | `target_group` | object | custom policies only (see §7.2) |
 
-Real schemes load with their real default values. Ranges are final once Phase 2 shows the data.
+Real schemes load with their real default values (D-037; JSY by state group and rural/urban). Ranges are final once Phase 2 shows the data.
 Removed: `digital_only` (D-031). `requires_bank_account` stays until Phase 2 shows whether it can be estimated.
 
 ## 7. Pages

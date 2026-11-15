@@ -13,6 +13,7 @@ Source URLs and download dates are in `data/MANIFEST.csv`. Row counts and checks
 | `census_disability.parquet` | 640 districts: disabled persons (all, 20+, 60+) | Census 2011 table C-20 | as above |
 | `census_age.parquet` | 640 districts: all-ages persons and persons aged 60+ | Census 2011 table C-13 (single-year age) | as above |
 | `state_income.parquet` | State/UT per-capita NSDP, current prices, 2021-22 | Economic Survey 2023-24 table 1.11A (state DES via MoSPI), indiabudget.gov.in | Govt of India public report; no licence text |
+| `nfhs_sample_sizes.parquet` | 704 districts: households, women and men interviewed (printed on each sheet) | NFHS-5 district fact sheets (`parse_sample_sizes.py`) | as above |
 | `eligible_counts.parquet` | Bases per scheme (households, people, births estimate) | Derived from the Census PCA | as above |
 | `district_map.parquet` | NFHS district to Census 2011 district (634 of 704 mapped) | Our join (exact names + reviewed spellings) | Derived; inputs as above |
 | `district_traits.parquet` | One row per NFHS district with all traits, `deprivation_score` (beta7), state income (beta2) and flags (`in_v1`, `state_traits_partial_data`) | Derived from the files above | Derived |

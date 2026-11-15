@@ -1,0 +1,530 @@
+{
+  "n_districts": 629,
+  "n_rows": 3614,
+  "n_agents": 500,
+  "seed": 42,
+  "baseline_partial_rows": 88,
+  "decisions": "D-037 to D-041",
+  "agent_model_beats_gbm": false,
+  "betas": {
+    "b1_fixed_assumed": 1.0,
+    "trust_latent_assumed": 0.0,
+    "fixed_sets_assumed_by_team": {
+      "weak": {
+        "b2": 0.2,
+        "b3": -0.3,
+        "b5": -0.2,
+        "b6": 0.1,
+        "b8": -0.3
+      },
+      "central": {
+        "b2": 0.5,
+        "b3": -0.8,
+        "b5": -0.6,
+        "b6": 0.4,
+        "b8": -0.9
+      },
+      "strong": {
+        "b2": 1.0,
+        "b3": -1.5,
+        "b5": -1.2,
+        "b6": 0.8,
+        "b8": -1.8
+      }
+    },
+    "fitted": {
+      "weak": {
+        "b0": 0.9003,
+        "b7": -0.7448,
+        "era_shift": -0.2577
+      },
+      "central": {
+        "b0": 1.094,
+        "b7": -0.7455,
+        "era_shift": -0.4746
+      },
+      "strong": {
+        "b0": 1.1932,
+        "b7": -0.8059,
+        "era_shift": -0.7
+      }
+    }
+  },
+  "in_sample_mae_unanchored": {
+    "weak": 23.113,
+    "central": 23.114,
+    "strong": 22.235
+  },
+  "gbm_in_sample_mae": 4.168,
+  "losto_headline": {
+    "folds": [
+      {
+        "name": "Andaman & Nicobar Islands",
+        "n": 12,
+        "agent_mae": 32.817823358661336,
+        "gbm_mae": 8.400423470274916,
+        "naive_mae": 32.93360215053763
+      },
+      {
+        "name": "Andhra Pradesh",
+        "n": 52,
+        "agent_mae": 15.775742424388607,
+        "gbm_mae": 8.299113422398438,
+        "naive_mae": 18.922641837800207
+      },
+      {
+        "name": "Arunachal Pradesh",
+        "n": 64,
+        "agent_mae": 29.521735101460838,
+        "gbm_mae": 14.79440462856175,
+        "naive_mae": 22.769022817460318
+      },
+      {
+        "name": "Assam",
+        "n": 108,
+        "agent_mae": 20.77989558092469,
+        "gbm_mae": 12.137802820269403,
+        "naive_mae": 14.869662560944318
+      },
+      {
+        "name": "Bihar",
+        "n": 152,
+        "agent_mae": 31.288699177284936,
+        "gbm_mae": 7.010641588431901,
+        "naive_mae": 27.02602473031368
+      },
+      {
+        "name": "Chhattisgarh",
+        "n": 72,
+        "agent_mae": 19.491008770981008,
+        "gbm_mae": 8.921677400590923,
+        "naive_mae": 19.921421577916746
+      },
+      {
+        "name": "Goa",
+        "n": 8,
+        "agent_mae": 10.416415529082974,
+        "gbm_mae": 13.84956492398125,
+        "naive_mae": 24.306281232648526
+      },
+      {
+        "name": "Gujarat",
+        "n": 104,
+        "agent_mae": 24.276447938302944,
+        "gbm_mae": 6.0679132702747545,
+        "naive_mae": 20.253877117706907
+      },
+      {
+        "name": "Haryana",
+        "n": 84,
+        "agent_mae": 30.53073923151017,
+        "gbm_mae": 7.291382452468696,
+        "naive_mae": 27.536444262518756
+      },
+      {
+        "name": "Himachal Pradesh",
+        "n": 48,
+        "agent_mae": 27.731787969919424,
+        "gbm_mae": 7.27669089012224,
+        "naive_mae": 21.96118365330322
+      },
+      {
+        "name": "Jammu & Kashmir",
+        "n": 80,
+        "agent_mae": 31.349531019844893,
+        "gbm_mae": 15.345521264638938,
+        "naive_mae": 27.183004436176304
+      },
+      {
+        "name": "Jharkhand",
+        "n": 96,
+        "agent_mae": 22.45712357225102,
+        "gbm_mae": 10.267697599328875,
+        "naive_mae": 18.100081652257444
+      },
+      {
+        "name": "Karnataka",
+        "n": 120,
+        "agent_mae": 25.92404497518538,
+        "gbm_mae": 11.572718434592586,
+        "naive_mae": 25.948181421083287
+      },
+      {
+        "name": "Kerala",
+        "n": 56,
+        "agent_mae": 22.24304463170343,
+        "gbm_mae": 7.437684159379589,
+        "naive_mae": 23.435187171185753
+      },
+      {
+        "name": "Madhya Pradesh",
+        "n": 196,
+        "agent_mae": 28.91296464676938,
+        "gbm_mae": 7.9216539702627315,
+        "naive_mae": 22.842855607023058
+      },
+      {
+        "name": "Maharashtra",
+        "n": 140,
+        "agent_mae": 26.443287721190618,
+        "gbm_mae": 13.16630863394408,
+        "naive_mae": 24.436596342588707
+      },
+      {
+        "name": "Manipur",
+        "n": 36,
+        "agent_mae": 33.8232756241416,
+        "gbm_mae": 14.478026932843502,
+        "naive_mae": 24.482228464419475
+      },
+      {
+        "name": "Meghalaya",
+        "n": 24,
+        "agent_mae": 26.0079333556312,
+        "gbm_mae": 17.331407735625948,
+        "naive_mae": 20.352990141369048
+      },
+      {
+        "name": "Mizoram",
+        "n": 32,
+        "agent_mae": 20.651253658339748,
+        "gbm_mae": 13.177640127420533,
+        "naive_mae": 21.334669447560294
+      },
+      {
+        "name": "NCT Delhi",
+        "n": 18,
+        "agent_mae": 4.886079195285948,
+        "gbm_mae": 5.788726390258073,
+        "naive_mae": 22.313360524039055
+      },
+      {
+        "name": "Nagaland",
+        "n": 44,
+        "agent_mae": 42.76220028590509,
+        "gbm_mae": 14.669989038831629,
+        "naive_mae": 30.945792764169315
+      },
+      {
+        "name": "Odisha",
+        "n": 120,
+        "agent_mae": 29.08903684714583,
+        "gbm_mae": 8.055121905743322,
+        "naive_mae": 20.792161716171616
+      },
+      {
+        "name": "Puducherry",
+        "n": 16,
+        "agent_mae": 22.68754227316624,
+        "gbm_mae": 6.986292470604068,
+        "naive_mae": 31.276218662952648
+      },
+      {
+        "name": "Punjab",
+        "n": 80,
+        "agent_mae": 26.378576176433267,
+        "gbm_mae": 8.96990363101244,
+        "naive_mae": 26.881622355631787
+      },
+      {
+        "name": "Rajasthan",
+        "n": 132,
+        "agent_mae": 17.628392495671662,
+        "gbm_mae": 20.38091962375728,
+        "naive_mae": 23.470733979135613
+      },
+      {
+        "name": "Sikkim",
+        "n": 16,
+        "agent_mae": 27.38588895297291,
+        "gbm_mae": 7.083292781991636,
+        "naive_mae": 26.473387883008353
+      },
+      {
+        "name": "Tamil Nadu",
+        "n": 128,
+        "agent_mae": 17.67648426775545,
+        "gbm_mae": 11.044478996807406,
+        "naive_mae": 18.852889392168322
+      },
+      {
+        "name": "Telangana",
+        "n": 18,
+        "agent_mae": 16.955751100557954,
+        "gbm_mae": 5.3908686362392375,
+        "naive_mae": 24.720720553701643
+      },
+      {
+        "name": "Tripura",
+        "n": 16,
+        "agent_mae": 27.6296291425937,
+        "gbm_mae": 10.791477977280366,
+        "naive_mae": 21.45590934371524
+      },
+      {
+        "name": "Uttar Pradesh",
+        "n": 284,
+        "agent_mae": 30.808785092294663,
+        "gbm_mae": 9.957477224526237,
+        "naive_mae": 24.17464084507042
+      },
+      {
+        "name": "Uttarakhand",
+        "n": 52,
+        "agent_mae": 19.401148741773007,
+        "gbm_mae": 14.94875713444572,
+        "naive_mae": 16.405199269056734
+      },
+      {
+        "name": "West Bengal",
+        "n": 72,
+        "agent_mae": 31.778220903698216,
+        "gbm_mae": 7.421190254138313,
+        "naive_mae": 25.572326012549915
+      }
+    ],
+    "weighted_mean": {
+      "agent_mae": 26.07171075150683,
+      "gbm_mae": 10.543260462491991,
+      "naive_mae": 23.037993842495485
+    }
+  },
+  "loso": {
+    "folds": [
+      {
+        "name": "jsy",
+        "n": 629,
+        "agent_mae": 23.02568369880149,
+        "gbm_mae": 39.127651228542206,
+        "naive_mae": 36.23036224079868
+      },
+      {
+        "name": "pmjay",
+        "n": 611,
+        "agent_mae": 58.49411872611363,
+        "gbm_mae": 42.795801125454545,
+        "naive_mae": 32.680402630648125
+      },
+      {
+        "name": "pmuy",
+        "n": 611,
+        "agent_mae": 29.13973235516768,
+        "gbm_mae": 23.933393409303047,
+        "naive_mae": 22.530194628066972
+      },
+      {
+        "name": "sbm",
+        "n": 629,
+        "agent_mae": 8.762363459390793,
+        "gbm_mae": 17.3088301324826,
+        "naive_mae": 13.620170265141804
+      }
+    ],
+    "weighted_mean": {
+      "agent_mae": 29.652808335953964,
+      "gbm_mae": 30.754066385815122,
+      "naive_mae": 26.245830593270757
+    }
+  },
+  "loso_note": "4 schemes are too few: a held-out scheme has slider values never seen in training.",
+  "gbm_losto_error_band_pp": {
+    "pmjay": {
+      "p10": -28.68,
+      "p90": 28.53
+    },
+    "pmuy": {
+      "p10": -12.28,
+      "p90": 15.03
+    },
+    "jsy": {
+      "p10": -6.85,
+      "p90": 11.1
+    },
+    "sbm": {
+      "p10": -14.84,
+      "p90": 13.2
+    }
+  },
+  "sampling_band": {
+    "deff_assumed_by_team": 2.0,
+    "method": "SE = sqrt(deff * p * (1-p) / n); band = +-1.2816 * SE (10th-90th percentile)",
+    "n_used": "households (PM-JAY, PMUY, SBM); women interviewed for JSY (upper bound on births, so the JSY band is understated)",
+    "by_scheme": {
+      "pmjay": {
+        "median_half_width_pp": 2.7,
+        "max_half_width_pp": 6.05,
+        "share_over_30pp_wide_at_real_settings": 0.0
+      },
+      "pmuy": {
+        "median_half_width_pp": 2.79,
+        "max_half_width_pp": 5.61,
+        "share_over_30pp_wide_at_real_settings": 0.0
+      },
+      "jsy": {
+        "median_half_width_pp": 1.49,
+        "max_half_width_pp": 3.38,
+        "share_over_30pp_wide_at_real_settings": 0.0
+      },
+      "sbm": {
+        "median_half_width_pp": 2.68,
+        "max_half_width_pp": 6.03,
+        "share_over_30pp_wide_at_real_settings": 0.0
+      }
+    }
+  },
+  "sanity_table_pp": {
+    "jsy": {
+      "+1 document": {
+        "weak": -0.152,
+        "central": -0.468,
+        "strong": -1.045
+      },
+      "+1 burden": {
+        "weak": -0.75,
+        "central": -2.447,
+        "strong": -5.536
+      },
+      "+1 speed": {
+        "weak": 0.352,
+        "central": 1.322,
+        "strong": 2.43
+      },
+      "double benefit": {
+        "weak": 0.098,
+        "central": 0.243,
+        "strong": 0.475
+      },
+      "add bank requirement": {
+        "weak": -0.531,
+        "central": -2.04,
+        "strong": -5.453
+      }
+    },
+    "pmjay": {
+      "+1 document": {
+        "weak": -0.111,
+        "central": -0.245,
+        "strong": -0.334
+      },
+      "+1 burden": {
+        "weak": -0.672,
+        "central": -1.866,
+        "strong": -3.336
+      },
+      "+1 speed": {
+        "weak": 0.354,
+        "central": 1.494,
+        "strong": 3.164
+      },
+      "double benefit": {
+        "weak": 0.989,
+        "central": 2.668,
+        "strong": 5.846
+      },
+      "add bank requirement": {
+        "weak": -0.343,
+        "central": -0.882,
+        "strong": -1.303
+      }
+    },
+    "pmuy": {
+      "+1 document": {
+        "weak": -0.173,
+        "central": -0.304,
+        "strong": -0.252
+      },
+      "+1 burden": {
+        "weak": -1.009,
+        "central": -2.759,
+        "strong": -4.832
+      },
+      "+1 speed": {
+        "weak": 0.519,
+        "central": 2.045,
+        "strong": 3.796
+      },
+      "double benefit": {
+        "weak": 0.214,
+        "central": 0.513,
+        "strong": 0.946
+      },
+      "add bank requirement": {
+        "weak": 0.0,
+        "central": 0.0,
+        "strong": 0.0
+      }
+    },
+    "sbm": {
+      "+1 document": {
+        "weak": -0.394,
+        "central": -1.083,
+        "strong": -1.948
+      },
+      "+1 burden": {
+        "weak": -1.999,
+        "central": -6.043,
+        "strong": -11.334
+      },
+      "+1 speed": {
+        "weak": 0.966,
+        "central": 3.625,
+        "strong": 6.298
+      },
+      "double benefit": {
+        "weak": 1.481,
+        "central": 3.536,
+        "strong": 6.208
+      },
+      "add bank requirement": {
+        "weak": 0.0,
+        "central": 0.0,
+        "strong": 0.0
+      }
+    }
+  },
+  "pmjay_benefit_range_inr": [
+    250000.0,
+    1000000.0
+  ],
+  "recovery": {
+    "noise_1.0pp": {
+      "b0": {
+        "true": 1.0940488889566276,
+        "est": 1.0905223500620798,
+        "err": -0.0035265388945477927
+      },
+      "b7": {
+        "true": -0.7455467866226517,
+        "est": -0.7408928138813295,
+        "err": 0.0046539727413221765
+      },
+      "era_shift": {
+        "true": -0.47464133131688374,
+        "est": -0.47246218732191547,
+        "err": 0.002179143994968269
+      }
+    },
+    "noise_3.0pp": {
+      "b0": {
+        "true": 1.0940488889566276,
+        "est": 1.0827661848243704,
+        "err": -0.011282704132257182
+      },
+      "b7": {
+        "true": -0.7455467866226517,
+        "est": -0.7323188387029302,
+        "err": 0.013227947919721483
+      },
+      "era_shift": {
+        "true": -0.47464133131688374,
+        "est": -0.4663983503498816,
+        "err": 0.008242980967002156
+      }
+    }
+  },
+  "fitted_terms": [
+    "b0",
+    "b7",
+    "era_shift"
+  ]
+}

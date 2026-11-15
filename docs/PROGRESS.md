@@ -3,14 +3,14 @@
 Update after every task. Newest log entries at the top.
 
 ## Current phase
-**Phase 1 — Data** (started 2026-11-15)
+**Phase 2 — Model** (started 2026-11-15)
 
 ## Phase status
 | Phase | Status | Sam signed off |
 |---|---|---|
 | 0 Setup | ✅ Done | ✅ Sam, 2026-11-15 |
-| 1 Data | ✅ Done, waiting for sign-off | — |
-| 2 Model | ⏳ Not started | — |
+| 1 Data | ✅ Done | ✅ Sam, 2026-11-15 |
+| 2 Model | ✅ Done, waiting for sign-off | — |
 | 3 Fast model + API | ⏳ Not started | — |
 | 4 Simulator page | ⏳ Not started | — |
 | 5 Other pages | ⏳ Not started | — |
@@ -32,18 +32,65 @@ Update after every task. Newest log entries at the top.
 - [x] Follow-ups (D-036): `xlrd`, Census C-13 age 60+ (35 xls, 640 districts), drop widows/electricity, beta7 deprivation score, beta2 state income (Economic Survey table 1.11A)
 - [x] **Phase 1 done.** `just check` and `just test` pass. Waiting for Sam's sign-off.
 
+## Phase 2 tasks
+- [x] Plan, slider values (D-037), model design (D-038), hybrid decision (D-039), β values and range rule (D-040), anchor and bands (D-041)
+- [x] Sampler, eligibility, adoption model (monthly-income β2), logit anchor, slider change, range rule (`govsim/hybrid.py`), PM-JAY benefit cap
+- [x] NFHS sample sizes parsed for all 704 sheets (`scripts/parse_sample_sizes.py`, `nfhs_sample_sizes.parquet`)
+- [x] β0, β7 refitted (β2, 3, 5, 6, 8 fixed); LOSTO headline + LOSO; GBM bands; sampling bands; sanity table; recovery -> `backend/artifacts/report.json`, `betas.json`
+- [x] `just check` and `just test` pass (47 backend tests)
+- [ ] **Waiting for Sam's Phase 2 sign-off.**
+
+## Phase 2 results (2026-11-15, `just train`, 21 s)
+Data: 629 districts, 3,614 rows (see D-038 for exclusions and baselines).
+
+**Accuracy, MAE pp on held-out NFHS-5 rows (headline = LOSTO).**
+| Test | Agent model (fixed central β, unanchored) | GBM | Naive (training mean) |
+|---|---|---|---|
+| LOSTO (leave one state out), headline | 26.1 | 10.5 | 23.0 |
+| LOSO (leave one scheme out) | 29.7 | 30.8 | 26.2 |
+
+- **The agent model does not beat the GBM** and is no longer used to predict a level. With β2, 3, 5, 6, 8 fixed, its unanchored in-sample MAE is 23 pp (GBM 4.2). Its job is the slider change, so this is expected; the report page must say so (D-039).
+- **LOSO:** 4 schemes are too few; a held-out scheme has slider values never seen in training. Per scheme (agent / GBM / naive): JSY 23.0 / 39.1 / 36.2; PM-JAY 58.5 / 42.8 / 32.7; PMUY 29.1 / 23.9 / 22.5; SBM 8.8 / 17.3 / 13.6.
+- Agent beats GBM in 3 of 32 states.
+
+**Fitted terms (central set; weak and strong in `report.json`).** β0 = 1.09 (weak 0.90, strong 1.19), β7 = -0.75 (-0.74, -0.81), era shift = -0.47 (-0.26, -0.70). β7 has the expected sign. Recovery (simulate, refit from zero, other β fixed): at 1 pp and 3 pp noise β0, β7 and the era shift come back within 0.02, as long as the model is right. β0 and β7 do not change the anchored slider changes (D-041).
+**Fixed β (assumed by team, approved):** β2 0.2 / 0.5 / 1.0; β3 -0.3 / -0.8 / -1.5; β5 -0.2 / -0.6 / -1.2; β6 0.1 / 0.4 / 0.8; β8 -0.3 / -0.9 / -1.8 (weak / central / strong). β1 = 1.0 on trust 0 (assumed).
+
+**Bands (pp).**
+| Scheme | GBM LOSTO band (10th / 90th pct, in report only) | NFHS sampling band, median half-width (max) |
+|---|---|---|
+| PM-JAY | -28.68 / +28.53 | ±2.7 (6.05) |
+| PMUY | -12.28 / +15.03 | ±2.79 (5.61) |
+| JSY | -6.85 / +11.1 | ±1.49 (3.38), understated |
+| SBM | -14.84 / +13.2 | ±2.68 (6.03) |
+Sampling band method: `SE = sqrt(deff × p × (1-p) / n)`, band ±1.2816 × SE (10th-90th percentile). `n` = households interviewed (read from each sheet; 704 of 704 found, 213 to 990, median 908) for PM-JAY, PMUY, SBM; women interviewed for JSY (no births count is printed, so the JSY band is **understated**). **Design effect 2.0 is assumed by team.** At the real settings no district is wider than 30 pp, so "low confidence" only appears when sliders move a lot (e.g. SBM, strong set, +1 burden: change -11.3 pp, range about 11 pp + band).
+
+**Sanity table (anchored at the actual NFHS value, median district, weak / central / strong, pp).**
+| Scheme | +1 document | +1 burden | +1 speed | Double benefit | Add bank requirement |
+|---|---|---|---|---|---|
+| PM-JAY | -0.1 / -0.2 / -0.3 | -0.7 / -1.9 / -3.3 | +0.4 / +1.5 / +3.2 | +1.0 / +2.7 / +5.8 | -0.3 / -0.9 / -1.3 |
+| PMUY | -0.2 / -0.3 / -0.3 | -1.0 / -2.8 / -4.8 | +0.5 / +2.0 / +3.8 | +0.2 / +0.5 / +0.9 | already required |
+| JSY | -0.2 / -0.5 / -1.0 | -0.8 / -2.4 / -5.5 | +0.4 / +1.3 / +2.4 | +0.1 / +0.2 / +0.5 | -0.5 / -2.0 / -5.5 |
+| SBM | -0.4 / -1.1 / -1.9 | -2.0 / -6.0 / -11.3 | +1.0 / +3.6 / +6.3 | +1.5 / +3.5 / +6.2 | already required |
+One oddity: PMUY +1 document is -0.30 (central) and -0.25 (strong): the sets are refitted separately and the effect is tiny, so the order flips slightly. Not an error in the model.
+
+**Optional: documents effect for all agents (proposal, NOT used).** Add `β3a × docs/4` for every agent, besides the illiterate-only β3. Values (weak / central / strong): -0.05 / -0.15 / -0.30. Effect of +1 document on z is -0.01 / -0.04 / -0.08 for a literate agent (vs -0.08 / -0.20 / -0.38 for an illiterate one). Tiny; say if you want it in.
+
+**Files:** `backend/govsim/hybrid.py` (anchor, change, sampling band, range, low-confidence), `govsim/evaluate/sanity.py`, `scripts/parse_sample_sizes.py`, `backend/artifacts/{report,betas}.json` (not git-ignored; Sam commits).
+Suggested commit message: `Phase 2 model: hybrid output (NFHS level + anchored agent-model change), fixed assumed betas, sampling bands, LOSTO/LOSO report`
+
 ## Waiting on Sam
-- Phase 1 sign-off, and the decisions listed under "Decisions needed from Sam".
+- Phase 2 sign-off (or changes). Open for you: JSY band is understated (no births count); deff 2.0 is an assumption; optional documents effect not used.
 
 ## Blockers
 - 70 NFHS-5 districts (mostly new since 2011, 22 of 31 in Telangana) have no 2011 parent. An official source is needed (LGD has a captcha, so not scriptable). See decision 1 below.
 - Open decision: `@testing-library/jest-dom` (removed in Phase 0): not approved, stays uninstalled.
 
 ## Key results (fill in as phases finish)
-- Agent model LOSO MAE: —
-- GBM LOSO MAE: —
-- Agent model LOSTO MAE: —
-- GBM LOSTO MAE: —
+- Agent model LOSO MAE: 29.7 pp (naive 26.2; fixed central β, D-039)
+- GBM LOSO MAE: 30.8 pp
+- Agent model LOSTO MAE: 26.1 pp (naive 23.0); GBM LOSTO (headline): 10.5 pp
+- GBM LOSTO MAE: 10.5 pp
 - `/simulate` speed: —
 
 ## Findings: NFHS-5 district data (2026-11-15)
@@ -93,6 +140,8 @@ D-033 V1 uses 634 mapped districts; D-034 Vidisha and Lakshadweep missing; D-035
 - Phase 1 sign-off only. Open note for Phase 2: Ladakh and Dadra & Nagar Haveli and Daman & Diu (5 districts) have no state income value.
 
 ## Log
+- 2026-11-15 — Phase 2 final (D-039 to D-041). NFHS sample sizes parsed; hybrid module (logit anchor, slider change, sampling band, end-to-end range, low-confidence); PM-JAY cap; β0, β7 refitted with β2, 3, 5, 6, 8 fixed; report.json written; 47 tests, `just check` clean. Stopped for Phase 2 sign-off.
+- 2026-11-15 — Phase 2 built (D-037, D-038). Sampler, eligibility, adoption model, Nelder-Mead calibration, recovery test, GBM, LOSO/LOSTO, `just train`. 40 backend tests, `just check` clean. Agent model does not beat the GBM; β2 and β6 have the wrong sign (details above). Stopped for Sam.
 - 2026-11-15 — Phase 1 follow-ups (D-036). Installed `xlrd` (approved). Downloaded C-13 (35 xls) and Economic Survey table 1.11A (MANIFEST 787 rows). Added age 60+ share, beta7 `deprivation_score`, `state_per_capita_nsdp_2021_22`; removed electricity trait; widows dropped. SPEC 5.1, 7.2, 10 and DATA_REPORT updated. 28 backend tests, `just check` clean. Phase 1 marked done; stopped for sign-off.
 - 2026-11-15 — Traits and Phase 1 close-out. Downloaded Census C-20 (35 xlsx) and the two NFHS-5 state compendia (MANIFEST 751 rows). Added `parse_state.py`, `traits.py`, C-20 parsing, trait parsing in `parse_nfhs.py`, `has_nfhs_data` on map, DD name fix, `data/processed/README.md`. 8 NFHS district traits (max |r| with a target 0.67), 9 Census shares, 3 state-level traits (`partial_data`, matches GitHub CSV 37/37). SPEC 5.1 updated; D-033 to D-035. `just check` and `just test` pass. Stopped for Phase 1 sign-off.
 - 2026-11-15 — Phase 1 data tasks finished. Census 2011 PCA downloaded (D-032), join table built (634/704), eligible counts, simplified GeoJSON, `docs/DATA_REPORT.md`. SPEC: metric label (D-030), β4/`digital_only` dropped, β2 renamed, "weakly estimated" notes (D-031). New scripts: `census.py`, `join_districts.py`, `geo.py`, `build_data.py`; 21 backend tests. Stopped for Sam's sign-off. Suggested commit message: `Phase 1 data: Census 2011, district join, eligible counts, map, data report`

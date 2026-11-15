@@ -26,7 +26,7 @@ Approved by Sam, 2026-11-16. Phase 1 changed 2026-11-15 (D-028). Work on one pha
   delays (`download_public.py`). Telangana is included; Chandigarh is skipped.
 - `parse_nfhs.py` reads each PDF with `pdftotext` (data scripts only) and writes
   `data/processed/nfhs_districts.parquet`: 4 indicators x NFHS-5 and NFHS-4.
-- Download the Census 2011 Primary Census Abstract (district level) from censusindia.gov.in: households, population, rural/urban, children 0-6, SC/ST, literacy, workers (no widow, disability, age 60+, BPL; see PROGRESS).
+- Download the Census 2011 Primary Census Abstract (district level) from censusindia.gov.in: households, population, rural/urban, children 0-6, SC/ST, literacy, workers. Also Census C-20 (disability, 35 state files) and C-13 (age, for 60+, 35 state files) (D-035, D-036). No widow, BPL or income-band source (dropped).
 - District join table (Census 2011 codes, LGD codes, NFHS names -> map polygons, split districts -> 2011 parent).
 - Estimate "eligible" counts per scheme per district (rules in SPEC §3).
 - Clean the map; simplify it to GeoJSON for the frontend (keep CC BY-NC-SA credit).

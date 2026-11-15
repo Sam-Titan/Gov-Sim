@@ -18,6 +18,7 @@ Calibrate the agent model (9 β) on real data → run it many times → train a 
 surrogate for instant slider results. Keep the GBM baseline. Show a range and warnings.
 **Why:** instant answers that can still be explained; too few real schemes to train ML
 directly on real uptake.
+**Update 2026-11-15:** the calibration part is replaced by D-039 (GBM for the district level, fixed assumed β for slider changes).
 
 ## D-005 — V1 schemes (2026-11-16, replaces 2026-11-15 versions)
 5 schemes: Ujjwala (PMUY), Jan Dhan (PMJDY), NSAP old age, widow and disability pensions.
@@ -192,3 +193,58 @@ disability; it has no exact 18+ cut, so 20+ and 60+ are used. Census C-13 (age) 
 - **beta7 deprivation score:** mean of six sign-adjusted z-scores over the 704 NFHS-5 districts: women literate, women with 10+ years of schooling, female school attendance, birth registration (low = deprived); women married before 18, population below 15 (high = deprived). Only non-leaking traits. Correlation with targets in DATA_REPORT (largest: SBM -0.68).
 - **beta2 income: state per-capita NSDP, not a national figure.** A free, scriptable source exists: Economic Survey 2023-24 statistical appendix table 1.11A on indiabudget.gov.in (source: state Directorates of Economics & Statistics via MoSPI; PDF downloads with no login, no `robots.txt` (404)). RBI's own site blocks scripts (HTTP 418 / returns the homepage), so it was not used. One common year, 2021-22 (2022-23 and 2023-24 have gaps), current prices. Missing for Ladakh and Dadra & Nagar Haveli and Daman & Diu (5 districts); no national figure was added, Phase 2 decides. Nominal, so it is not adjusted for prices across states.
 **Why:** decided by Sam.
+
+## D-037 — Scheme slider values and sources (2026-11-15)
+Approved by Sam. Cash, documents and bank rules come from official pages; "assumed" marks
+a value no source gave. Burden and speed (1-5) are our scores, approved by Sam.
+| Scheme | Benefit (₹) | Docs | Bank | Burden | Speed |
+|---|---|---|---|---|---|
+| PM-JAY | 5,00,000 cover per family per year, shown as **non-cash cover** (india.gov.in PM-JAY page) | 2: Aadhaar, ration card (`hem.nha.gov.in/BeneficiaryIdentification.pdf`) | no | 2 | 4 |
+| PMUY | 1,600 per connection (`pmuy.gov.in/faq.html`; PIB Apr 2023) | 6 (`pmuy.gov.in/ujjwala2.html`, proof of address only if different) | yes (mandatory) | 3 | 4 |
+| JSY | Mother's package, state rule below | LPS 1, HPS 2 (JSY/MCH card; BPL or SC/ST certificate needed in HPS states, JSY guidelines 4.3) | no (cash paid at the facility, 4.7) | 2 | 3 |
+| SBM | 12,000 per household toilet (`swachhbharatmission.ddws.gov.in/faq`) | 1, **assumed**: guidelines name no documents; a beneficiary-list entry is the only step | yes, **assumed**: guidelines say DBT "may be ensured" for cash (6.4.10) | 3 | 2 |
+- **JSY state rule** (JSY guidelines, `nhm.gov.in/showfile.php?lid=420` para 4.1/4.6; `nhm.gov.in` JSY page). Low-performing states (LPS, 10): Uttar Pradesh, Uttarakhand, Bihar, Jharkhand, Madhya Pradesh, Chhattisgarh, Assam, Rajasthan, Odisha, Jammu & Kashmir. LPS mother's package ₹1,400 rural / ₹1,000 urban; all other states (HPS) ₹700 / ₹600. ASHA package not counted. Ladakh counts as HPS (no income value, excluded from training anyway).
+- **β2 form:** `log(1 + benefit / income)`, income = state per-capita NSDP 2021-22. PM-JAY is a yearly family cover and income is per person: a known mismatch, noted in the report.
+- **Slider:** `cash_benefit_inr` max raised to ₹5,00,000; UI uses a log scale.
+- Burden and speed reasons: PM-JAY card is made at a centre, cover is instant. PMUY has the longest paper list, connection comes fast. JSY is claimed at the facility, cash on the spot. SBM needs the household to build first, paid after.
+
+## D-038 — Agent model design choices for Phase 2 (2026-11-15)
+Approved by Sam (plan changes) plus the choices Claude made while building (flagged for review).
+- **Covered share** = `b + (1 - b) x mean(eligible_i x p_i)` over the district's agents (expected value, not coin flips). Assumes "already covered without the scheme" is independent of agent traits.
+- **Baseline `b`:** PM-JAY and PMUY: the district's NFHS-4 value (pre-scheme, 2015-16). If a district has no NFHS-4 value, the household-weighted state mean of NFHS-4 is used and the row is flagged `partial_data`; Telangana (no NFHS-4 anywhere) is excluded for these two schemes. JSY and SBM: `b = 0` (no pre-scheme number exists in our data; NFHS-4 is already mid-scheme). Private births and own toilets are therefore absorbed into β0 and the sign-up probability. **Limitation, to be shown in the report.**
+- **NFHS-4 use:** PM-JAY, PMUY: baseline only, never a target. JSY, SBM: second target with one shared nuisance shift `era_shift` added to z for NFHS-4 rows (not a β, not a slider). Traits are the same for both time points.
+- **β1** fixed at 1.0 on a district trust latent fixed at 0 (prior mean). Not fitted; labelled "assumed". No data on trust in V1.
+- **Weak β (2, 3, 5, 6, 8) and β7:** ridge penalty to a prior mean of 0 (sd 1), so signs come from the data, not from bounds.
+- **Common random numbers:** each district has fixed uniform draws (seed 42 + district id), reused in every evaluation.
+- **Eligibility in V1 real schemes = all agents.** SPEC §3 "rural focus" for SBM is not applied (urban sanitation is in the NFHS target and b = 0 cannot explain it). Custom-policy target groups use the same eligibility function.
+- **Exclusions:** 5 districts with no state income (Ladakh, Dadra & Nagar Haveli and Daman & Diu) are excluded from training and evaluation, not imputed (rule 4).
+- **GBM:** district traits + scheme feature values + baseline `b` + era flag. No scheme ID. Same rows as the agent model.
+
+## D-039 — Hybrid output: GBM for the district level, assumed β for slider changes (2026-11-15)
+Decided by Sam after the Phase 2 results (agent model does not beat the GBM: LOSTO 14.1 vs 10.5 pp, LOSO 32.1 vs 30.8; β2 and β6 got the wrong sign from 4 schemes). Replaces the "calibrate all β" part of D-004.
+- **District level ("from data"):** ~~the GBM prediction~~ changed by D-041: the actual NFHS-5 value for mapped districts. The GBM stays as the baseline in the report.
+- **Slider changes ("model assumption"):** agent model run twice, at the scheme's real settings and at the user's settings; the difference is added to the GBM value.
+- **β2, β3, β5, β6, β8 are fixed assumed values**, each with a low and a high value (table in SPEC 5.1 once Sam approves; proposal in PROGRESS.md). Cite research where it exists, otherwise label "assumed by team". **β0 and β7 stay fitted** (to the NFHS data, with the others fixed); **β1 stays fixed** (assumed). `era_shift` stays a nuisance term.
+- **Headline test is LOSTO.** LOSO stays in the report with the note that 4 schemes are too few to test generalisation across schemes.
+- **UI range** = GBM error band (from LOSTO errors) + spread of the slider change across the low and high β sets.
+- **Custom policies always show the `new_policy` label.**
+- Model report page states that the agent model does not beat the GBM.
+- `backend/artifacts/*.json` are to be committed (Sam makes the commit).
+**Status:** the decision is approved; the β values themselves are **not yet approved** and nothing uses them.
+
+## D-040 — β values approved; β2 on monthly income; error band; range rule (2026-11-15)
+- **β2 uses monthly income:** `log(1 + benefit / (state per-capita income / 12))` (changes D-037's formula; code updated, `MONTHS = 12`). So a cash change is visible in the result.
+- **Fixed β values approved by Sam** (weak / central / strong): β2 0.2 / 0.5 / 1.0; β3 -0.3 / -0.8 / -1.5; β5 -0.2 / -0.6 / -1.2; β6 0.1 / 0.4 / 0.8; β8 -0.3 / -0.9 / -1.8. All "assumed by team" (no effect sizes found; Gupta 2017 supports direction only). Subject to the sanity table below; β0, β7 not yet refitted.
+- **GBM error band:** 10th and 90th percentile of the GBM's LOSTO errors (actual - predicted), **per scheme**. First look (not final): PM-JAY -28.7 / +28.5 pp, PMUY -12.3 / +15.0, JSY -6.9 / +11.1, SBM -14.8 / +13.2.
+- **UI range rule (proposal, Sam to confirm):** `low = GBM + change_min + e10`, `high = GBM + change_max + e90`, `point = GBM + change_central`, clipped to 0-100. `change_min` and `change_max` are the smallest and largest of the weak / central / strong slider changes (sign-agnostic). The two parts are **added end to end, not combined as a root of squares**. This assumes the worst case, where both errors point the same way, so the range is wider than a statistical interval. With no slider change the range is the GBM band alone. Custom policies: no real settings to compare to, so always the `new_policy` label and a wider range (set in Phase 3).
+- **Sanity-table finding (see PROGRESS.md):** with monthly income, PM-JAY's ₹5 lakh makes the un-anchored model predict about 98% coverage for PM-JAY, so it barely reacts to sliders. **Proposal:** anchor the agent model to the GBM value for each district and scheme (add a per-district shift to z so the model equals the GBM at the real settings), then apply the slider change. Not adopted until Sam approves.
+
+## D-041 — Anchor at the NFHS value, sampling band, low-confidence, PM-JAY cap (2026-11-15)
+Approved by Sam. Updates D-039 and D-040.
+- **Anchor in logit space.** For each district and scheme, the agent model's z is shifted (one number per district) so the model equals the starting level at the real settings. The slider change is then `model(user settings) - model(real settings)`. β0 and β7 cancel out of this change (the shift absorbs them), so they matter only for the report's unanchored fit.
+- **Starting level = the actual NFHS-5 value** for real schemes in the 629 districts with data. **Custom policies:** the user picks a real scheme to "start from"; the change is applied to that scheme's level in that district. Always the `new_policy` label.
+- **GBM** stays as the baseline in the report (LOSTO error bands per scheme in `report.json`). It is not in the UI range for mapped districts.
+- **Sampling band (replaces the GBM band in the UI range):** `SE = sqrt(deff x p x (1-p) / n)`, band = ±1.2816 x SE (10th-90th percentile, like the GBM band). `n` = households interviewed, printed on each NFHS sheet ("information was gathered from 897 households, 942 women, and 143 men"; all 704 read, `nfhs_sample_sizes.parquet`), used for PM-JAY, PMUY, SBM. JSY uses women interviewed (births in the last 5 years are not printed), so the **JSY band is understated**. **Design effect 2.0 is assumed by team** (the NFHS sample is clustered, the value is not printed on the sheets).
+- **Range** = end-to-end sum (D-040): `low = level + min(change) + sampling_low`, `high = level + max(change) + sampling_high`, `point = level + central change`, clipped to 0-100. **"Low confidence" label** when high - low > 30 pp.
+- **PM-JAY benefit slider** capped at ₹2,50,000 to ₹10,00,000 (half to double the real cover), labelled "non-cash cover".
+- **Optional documents effect for all agents: proposed, not used** (values in PROGRESS.md).
