@@ -1,0 +1,14 @@
+{
+  "_note": "MOCK DATA for frontend work and tests only. Not real.",
+  "district_code": "000",
+  "scheme": "mock_scheme",
+  "uptake_low": 0.28,
+  "uptake_mid": 0.31,
+  "uptake_high": 0.35,
+  "reasons": [
+    { "term": "cash_benefit", "effect_pp": 4.2 },
+    { "term": "documents", "effect_pp": -3.1 },
+    { "term": "application_burden", "effect_pp": -1.8 }
+  ],
+  "warnings": ["new_policy"]
+}

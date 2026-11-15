@@ -1,0 +1,9 @@
+{
+  "app": { "title": "GovSim", "tagline": "Test a welfare scheme before launch" },
+  "health": {
+    "checking": "Checking the server…",
+    "ok": "Server is running",
+    "waking": "Waking up the server…"
+  },
+  "lang": { "en": "English", "hi": "हिन्दी" }
+}
