@@ -384,78 +384,78 @@
   "sanity_table_pp": {
     "jsy": {
       "+1 document": {
-        "weak": -0.152,
-        "central": -0.468,
-        "strong": -1.045
+        "weak": -0.141,
+        "central": -0.381,
+        "strong": -0.728
       },
       "+1 burden": {
         "weak": -0.75,
-        "central": -2.447,
-        "strong": -5.536
+        "central": -2.449,
+        "strong": -5.556
       },
       "+1 speed": {
         "weak": 0.352,
         "central": 1.322,
-        "strong": 2.43
+        "strong": 2.434
       },
       "double benefit": {
-        "weak": 0.098,
-        "central": 0.243,
-        "strong": 0.475
+        "weak": 0.099,
+        "central": 0.244,
+        "strong": 0.481
       },
       "add bank requirement": {
-        "weak": -0.531,
-        "central": -2.04,
-        "strong": -5.453
+        "weak": -0.48,
+        "central": -1.524,
+        "strong": -3.335
       }
     },
     "pmjay": {
       "+1 document": {
-        "weak": -0.111,
-        "central": -0.245,
-        "strong": -0.334
+        "weak": -0.347,
+        "central": -0.923,
+        "strong": -1.711
       },
       "+1 burden": {
-        "weak": -0.672,
-        "central": -1.866,
-        "strong": -3.336
+        "weak": -1.948,
+        "central": -5.73,
+        "strong": -10.797
       },
       "+1 speed": {
-        "weak": 0.354,
-        "central": 1.494,
-        "strong": 3.164
+        "weak": 0.99,
+        "central": 4.009,
+        "strong": 8.119
       },
       "double benefit": {
-        "weak": 0.989,
-        "central": 2.668,
-        "strong": 5.846
+        "weak": 2.701,
+        "central": 6.873,
+        "strong": 13.845
       },
       "add bank requirement": {
-        "weak": -0.343,
-        "central": -0.882,
-        "strong": -1.303
+        "weak": -1.083,
+        "central": -3.191,
+        "strong": -6.206
       }
     },
     "pmuy": {
       "+1 document": {
-        "weak": -0.173,
-        "central": -0.304,
-        "strong": -0.252
+        "weak": -0.427,
+        "central": -1.136,
+        "strong": -2.113
       },
       "+1 burden": {
-        "weak": -1.009,
-        "central": -2.759,
-        "strong": -4.832
+        "weak": -2.149,
+        "central": -6.378,
+        "strong": -12.433
       },
       "+1 speed": {
-        "weak": 0.519,
-        "central": 2.045,
-        "strong": 3.796
+        "weak": 1.085,
+        "central": 4.375,
+        "strong": 8.842
       },
       "double benefit": {
-        "weak": 0.214,
-        "central": 0.513,
-        "strong": 0.946
+        "weak": 0.466,
+        "central": 1.167,
+        "strong": 2.363
       },
       "add bank requirement": {
         "weak": 0.0,
@@ -465,24 +465,24 @@
     },
     "sbm": {
       "+1 document": {
-        "weak": -0.394,
-        "central": -1.083,
-        "strong": -1.948
+        "weak": -0.383,
+        "central": -1.034,
+        "strong": -1.959
       },
       "+1 burden": {
-        "weak": -1.999,
-        "central": -6.043,
-        "strong": -11.334
+        "weak": -2.007,
+        "central": -6.262,
+        "strong": -12.96
       },
       "+1 speed": {
-        "weak": 0.966,
-        "central": 3.625,
-        "strong": 6.298
+        "weak": 0.969,
+        "central": 3.738,
+        "strong": 7.094
       },
       "double benefit": {
-        "weak": 1.481,
-        "central": 3.536,
-        "strong": 6.208
+        "weak": 1.487,
+        "central": 3.651,
+        "strong": 6.952
       },
       "add bank requirement": {
         "weak": 0.0,

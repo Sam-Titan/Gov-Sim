@@ -3,7 +3,7 @@
 Update after every task. Newest log entries at the top.
 
 ## Current phase
-**Phase 5 — Other pages** (done 2026-11-16, browser-checked in Hindi, light mode and at 390 px; waiting for Sam's sign-off). Phase 4 signed off 2026-11-16.
+**Phase 5 — Other pages** (done 2026-11-16, browser-checked in Hindi, light mode and at 390 px; D-052 fix after that, waiting for Sam to see the new sanity table, then sign-off). Phase 4 signed off 2026-11-16.
 
 ## Phase status
 | Phase | Status | Sam signed off |
@@ -31,6 +31,15 @@ Update after every task. Newest log entries at the top.
 - [x] `data/processed/README.md` (source and licence per file); map has `has_nfhs_data`; DD state name fixed
 - [x] Follow-ups (D-036): `xlrd`, Census C-13 age 60+ (35 xls, 640 districts), drop widows/electricity, beta7 deprivation score, beta2 state income (Economic Survey table 1.11A)
 - [x] **Phase 1 done.** `just check` and `just test` pass. Waiting for Sam's sign-off.
+
+## D-052 fix (2026-11-16) — waiting for Sam to see the new sanity table
+- [x] Slider change = whole level in logit space, mean Δz over eligible types (D-052). Done in `hybrid.py`, `service.py` (run, group uptake, reasons), `adoption.py` (`logits`). `/simulate`, `/simulate/state`, `/compare` use it through `Service.run`.
+- [x] `sanity_table_pp` rewritten (`scripts/refresh_sanity.py`; no refit, other `report.json` numbers unchanged)
+- [x] "+1 burden < 0.5 pp": 347 → 122 of 2,516 rows; all 122 have level ≥ 90% (121) or ≤ 10% (1)
+- [x] Report page: one-sentence method + known data issue (NFHS-5 much lower than NFHS-4 for PM-JAY, cause unknown); EN + draft HI
+- [x] Tests: East Siang PM-JAY +1 burden ≥ 1 pp (service and API, also `/simulate/state` and `/compare`); logit-rule and no-baseline tests; ceiling-only test; report page test. 88 backend + 51 frontend pass, `just check` passes
+- [ ] Sam sees the new sanity table, then marks Phase 5 done
+- Note: the `partial_data` warning still shows for rows with an imputed baseline, but the baseline no longer affects slider results. Sam to decide whether to keep that wording (not changed).
 
 ## Phase 5 tasks
 - [x] Packages (approved): `recharts` 3.10.1, `@hookform/resolvers` 7.0.6

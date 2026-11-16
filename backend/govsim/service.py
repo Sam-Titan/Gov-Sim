@@ -1,7 +1,8 @@
 """Live anchored agent model (D-043). Loaded once, then every request is a few milliseconds.
 
-result = actual NFHS-5 level + anchored slider change; range = sampling band + the spread of
-the change over the weak / central / strong beta sets, added end to end (D-040, D-041).
+result = actual NFHS-5 level + slider change (the whole level moved in logit space, D-052);
+range = sampling band + the spread of the change over the weak / central / strong beta sets,
+added end to end (D-040, D-041).
 """
 
 from __future__ import annotations
@@ -18,7 +19,6 @@ from govsim.agents.adoption import (
     MONTHS,
     Design,
     build_design,
-    covered_share,
     probabilities,
     subset,
 )
@@ -32,7 +32,16 @@ from govsim.data.rows import (
     load_state_baseline,
     sampling_n,
 )
-from govsim.hybrid import LOW_CONFIDENCE_PP, Range, anchor_shift, combine_range, sampling_band
+from govsim.hybrid import (
+    LEVEL_FLOOR_PP,
+    LOW_CONFIDENCE_PP,
+    Range,
+    anchor_shift,
+    combine_range,
+    logit_level,
+    mean_dz,
+    sampling_band,
+)
 from govsim.schemes import (
     SCHEMES,
     SchemeInputs,
@@ -82,10 +91,6 @@ class Outcome:
     # whose group is too small to model.
     elig_share: np.ndarray | None = None
     too_small: np.ndarray | None = None
-
-
-def _covered(x: Design, beta: dict[str, float]) -> np.ndarray:
-    return covered_share(x, beta)
 
 
 def _group_uptake(x: Design, beta: dict[str, float]) -> np.ndarray:
@@ -280,13 +285,8 @@ class Service:
         scheme = str(self.scheme[rows[0]])
         n = np.array([self.n_by_scheme[scheme][j] for j in self.dist[rows]])
         err_lo, err_hi = sampling_band(level, n)
-        changes = []
-        for name in SETS:
-            shift = anchor_shift(real, self.betas[name], level)
-            changes.append(
-                covered_share(replace(new, shift=shift), self.betas[name])
-                - covered_share(replace(real, shift=shift), self.betas[name])
-            )
+        lv = np.clip(level, LEVEL_FLOOR_PP, 100.0 - LEVEL_FLOOR_PP)
+        changes = [logit_level(lv, mean_dz(real, new, self.betas[name])) - lv for name in SETS]
         ch = np.stack(changes, axis=1)
         ranges = [
             combine_range(
@@ -301,10 +301,12 @@ class Service:
         return Outcome(level, ch, ranges, err_hi)
 
     def _run_group(self, rows: np.ndarray, inputs: SchemeInputs | None, tg: TargetGroup) -> Outcome:
-        """Custom policy (D-044): uptake within the target group, in percent of the group.
+        """Custom policy (D-044, D-052): uptake within the target group, in percent of the group.
 
-        Anchored at the start scheme's NFHS level (everyone eligible, real settings). The range
-        is the min and max over the three beta sets and the NFHS sampling band of the level.
+        The shift of z is found so that everyone eligible, at the real settings, has the start
+        scheme's NFHS level. That gives the group's own level at the real settings; the new
+        settings then move it in logit space by the group's average change in z. The range is
+        the min and max over the three beta sets and the NFHS sampling band of the level.
         `changes` = new settings minus the real settings, for the same group.
         """
         real = subset(self.x, rows)
@@ -321,11 +323,11 @@ class Service:
             per_level = []
             for k, lv in enumerate(levels):
                 shift = anchor_shift(real, self.betas[name], lv)
-                u_new = _group_uptake(replace(new, shift=shift), self.betas[name])
+                u_real = _group_uptake(replace(real_g, shift=shift), self.betas[name])
+                u_new = logit_level(u_real, mean_dz(real_g, new, self.betas[name]))
                 per_level.append(u_new)
                 if k == 1:
-                    u_real = _group_uptake(replace(real_g, shift=shift), self.betas[name])
-                    changes.append(u_new - u_real)
+                    changes.append(u_new - np.clip(u_real, LEVEL_FLOOR_PP, 100 - LEVEL_FLOOR_PP))
             ups.append(np.stack(per_level, axis=1))  # (R, 3 levels)
         allu = np.stack(ups, axis=1).reshape(len(rows), -1)  # (R, 9)
         point = ups[1][:, 1]
@@ -353,11 +355,13 @@ class Service:
         rows = np.array([row])
         real = subset(self.x, rows)
         beta = self.betas["central"]
-        shift = anchor_shift(real, beta, real.target)
         group_basis = tg is not None
-        measure = _group_uptake if group_basis else _covered
         ref = self._apply(rows, None, tg) if group_basis else real
-        base = measure(replace(ref, shift=shift), beta)[0]
+        if group_basis:
+            shift = anchor_shift(real, beta, real.target)
+            start = _group_uptake(replace(ref, shift=shift), beta)
+        else:
+            start = np.clip(real.target, LEVEL_FLOOR_PP, 100.0 - LEVEL_FLOOR_PP)
         full = self._vals(inputs) if inputs else {}
         keys = {
             "benefit": "cash",
@@ -370,10 +374,10 @@ class Service:
         for term, key in keys.items():
             if key in full:
                 x = self._apply(rows, {key: full[key]}, tg)
-                effects.append((term, measure(replace(x, shift=shift), beta)[0] - base))
+                moved = logit_level(start, mean_dz(ref, x, beta))
+                effects.append((term, float((moved - start)[0])))
         if group_basis:
-            everyone = _group_uptake(replace(real, shift=shift), beta)[0]
-            effects.append(("target_group", base - everyone))
+            effects.append(("target_group", float(start[0] - real.target[0])))
         effects = [e for e in effects if abs(e[1]) >= MIN_EFFECT_PP]
         return sorted(effects, key=lambda e: -abs(e[1]))[:3]
 

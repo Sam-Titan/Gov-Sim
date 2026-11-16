@@ -66,6 +66,14 @@ describe("report page", () => {
     expect(screen.queryByText(/understated/i)).toBeNull();
   });
 
+  it("explains the slider method in one sentence and lists the NFHS-4 to NFHS-5 data issue", () => {
+    if (!parsed) throw new Error("report did not parse");
+    render(<ReportBody r={parsed} districts={districts} />);
+    expect(screen.getByText(/moves the district's real NFHS-5 level up or down/)).toBeTruthy();
+    expect(screen.getByText(/Arunachal Pradesh\) NFHS-5 shows much lower PM-JAY/)).toBeTruthy();
+    expect(screen.getByText(/whether coverage really fell or the two surveys/)).toBeTruthy();
+  });
+
   it("labels the assumed values", () => {
     if (!parsed) throw new Error("report did not parse");
     render(<ReportBody r={parsed} districts={districts} />);

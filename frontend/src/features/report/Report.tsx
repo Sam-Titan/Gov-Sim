@@ -164,6 +164,7 @@ function Weaknesses({
           max: n(jsy.max_half_width_pp, 2),
         })
       : t("report.weak.jsyBirthsNoNumbers"),
+    t("report.weak.nfhsDrop"),
     t("report.weak.partial", { n: n(r.raw.baseline_partial_rows, 0) }),
     noData && unmapped !== undefined
       ? t("report.weak.noData", {
@@ -388,6 +389,7 @@ export function ReportBody({
 
       <Panel id="rep-sanity" title={t("report.sanityTitle")}>
         <p className="text-sm opacity-80">{t("report.sanityIntro")}</p>
+        <p className="text-sm">{t("report.method")}</p>
         <SanityTable r={r} />
       </Panel>
 

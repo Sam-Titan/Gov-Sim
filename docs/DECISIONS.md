@@ -318,3 +318,13 @@ Decided by Sam. Before, `/compare` returned `B.low − A.low` and `B.high − A.
 - **Approved by Sam (2026-11-16):** Compare shows **no difference** for two different schemes (D-050); result reasons that round to 0.0 pp are **hidden** (a term below 0.05 pp is not a reason).
 - Browser check before sign-off (Hindi, light mode, 390 px wide): charts without animation, legend text in the ink colour, report tables keep a minimum width and scroll inside their panel, the report's English "assumed by team" label is shown as the translated phrase. Hindi wording unchanged (Phase 6).
 
+
+## D-052 — Slider change moves the whole level in logit space (2026-11-16)
+Decided by Sam. Replaces the D-038 baseline idea **for slider changes** (and the anchoring of D-041 that used it).
+- **Bug found:** for East Siang PM-JAY the NFHS-5 level (30.5%) is below the baseline (56.3%, the imputed Arunachal state mean). The old model cannot go below the baseline, so the agents' p was about 1% and every slider moved the result by about 0.1 pp (a burden of 3, 6 documents and ₹6.06 lakh gave −0.2 pp). Over all 2,516 district × scheme rows, 233 had b ≥ level − 2 pp and 230 of them moved less than 0.5 pp for +1 burden. All 233 are PM-JAY or PMUY.
+- **New rule:** `new level = sigmoid(logit(level) + mean Δz)`. Δz = change in z (new settings minus real settings) averaged over the eligible agent types; the anchor shift cancels. The level is kept in 0.5–99.5% so the logit exists. No baseline term.
+- **Applied to:** `/simulate`, `/simulate/state`, `/compare` (all use `Service.run`), reasons (each term alone, central set), custom-policy group uptake (shift of z found so everyone eligible has the start scheme's level, with no baseline; the group's own level then moves by the group's mean Δz), and the sanity table.
+- **Not changed:** the displayed NFHS-5 level, the sampling band, the weak / central / strong range rule (D-040), and the training and evaluation numbers in `report.json` (the baseline b is still used to fit β0 and β7). Only `sanity_table_pp` was rewritten (`scripts/refresh_sanity.py`, no refit).
+- **Effect:** PM-JAY and PMUY slider effects are about 1.6× to 2× larger than before in rows with no conflict too (median +1 burden: PM-JAY −1.9 → −5.7 pp, PMUY −2.8 → −6.4 pp). JSY and SBM are almost unchanged (their b is 0).
+- **Check after the change:** +1 burden (central set) is under 0.5 pp in 122 of 2,516 rows; all have a level ≥ 90% (121) or ≤ 10% (1). Test: East Siang PM-JAY +1 burden gives at least 1 pp (central) (−5.97 pp).
+- **Known data issue (shown on the report page):** in some districts, NFHS-5 PM-JAY coverage is much lower than NFHS-4 (160 of 629 rows have NFHS-4 ≥ NFHS-5, own or state mean). Real drop or survey difference: unknown.

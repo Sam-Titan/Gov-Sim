@@ -112,7 +112,7 @@ Rules:
 | β8 | Bank account needed × unbanked. Weakly estimated; dropped in Phase 2 if it cannot be estimated (D-031) |
 
 - **β handling (D-039):** β2, β3, β5, β6, β8 are fixed assumed values, each with a low and a high value (shown on the report page, labelled "assumed by team" or with a citation). β1 is fixed (assumed). Only β0 and β7 (and the nuisance `era_shift`) are fitted, with scipy Nelder-Mead to NFHS district values, common random numbers.
-- The agent model is used for **slider changes only**, as the difference between the user's settings and the scheme's real settings, **anchored in logit space** so it starts at the district's actual NFHS-5 value (D-041, see 5.4).
+- The agent model is used for **slider changes only** (D-052). The change is applied to the **whole level** in logit space: `new level = sigmoid(logit(NFHS-5 level) + mean Δz)`, where Δz is the change in z from the scheme's real settings to the user's settings, averaged over the eligible agent types. There is no baseline term in a slider change. The baseline b (D-038) is only used when fitting β0 and β7.
 - Check: β recovery test on simulated data (as in the demo bulletin), now for the fitted terms.
 
 ### 5.2 Baseline (also the district-level predictor, D-039)
@@ -131,10 +131,12 @@ Rules:
   - Time: two points (NFHS-4, NFHS-5) only; no Telangana NFHS-4.
 
 ### 5.4 Fast answers (instant sliders, live model)
-- **Output (D-039, D-041):** result = actual NFHS-5 value of the district ("from data") + agent-model change from the scheme's real settings to the user's settings ("model assumption"), anchored in logit space. Custom policies: the user picks a real scheme to start from; always the `new_policy` label.
+- **Output (D-039, D-041):** result = actual NFHS-5 value of the district ("from data") + agent-model change from the scheme's real settings to the user's settings ("model assumption"), the whole level moved in logit space by the average Δz of the eligible agents (D-052). Custom policies: the user picks a real scheme to start from; always the `new_policy` label.
 - **Range (D-040, D-041)** = NFHS sampling band (SE = sqrt(deff x p(1-p)/n), n = households from the sheet, or estimated births for JSY (D-042), deff 2 assumed, 10th-90th pct) + the spread of the slider change across the weak / central / strong β sets, added end to end. `low_confidence` label when wider than 30 pp.
 - **No surrogate (D-043).** The anchored agent model runs live for every request at the three β sets (weak / central / strong): about 6 ms for one district, 25 ms for all 629 districts.
-- **Reasons:** top 3 slider terms that change the result most for that district (each term switched on alone, anchored, central β set).
+- **Reasons:** top 3 slider terms that change the result most for that district (each term switched on alone, same logit rule, central β set).
+- **Custom policy (D-052):** the shift of z is found so everyone eligible, at the real settings, has the start scheme's NFHS level; the target group's own level at the real settings follows from it, and the new settings move that level by the group's mean Δz.
+- **Small changes:** a slider change under 0.5 pp is expected only where the level is 90% or more or 10% or less (ceiling / floor).
 - **Warnings:**
   - `out_of_range`: a slider is outside the values seen in training.
   - `new_policy`: a custom policy is far from all real schemes → wider range + label.

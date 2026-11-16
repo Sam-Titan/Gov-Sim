@@ -84,8 +84,8 @@ def build_design(
     )
 
 
-def probabilities(x: Design, beta: dict[str, float]) -> np.ndarray:
-    """Sign-up probability for every (row, agent type): shape (R, 8)."""
+def logits(x: Design, beta: dict[str, float]) -> np.ndarray:
+    """z for every (row, agent type): shape (R, 8)."""
     const = (
         beta["b0"]
         + BETA1 * TRUST
@@ -96,13 +96,17 @@ def probabilities(x: Design, beta: dict[str, float]) -> np.ndarray:
         + x.shift
     )
     log_ben = np.where(TYPE_RURAL[None, :], x.log_ben_rural[:, None], x.log_ben_urban[:, None])
-    z = (
+    return (
         const[:, None]
         + beta["b2"] * log_ben
         + beta["b3"] * x.docs[:, None] * TYPE_ILL[None, :]
         + beta["b8"] * x.bank[:, None] * TYPE_UNB[None, :]
     )
-    return 1.0 / (1.0 + np.exp(-z))
+
+
+def probabilities(x: Design, beta: dict[str, float]) -> np.ndarray:
+    """Sign-up probability for every (row, agent type): shape (R, 8)."""
+    return 1.0 / (1.0 + np.exp(-logits(x, beta)))
 
 
 def uptake_terms(x: Design, beta: dict[str, float]) -> np.ndarray:

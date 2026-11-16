@@ -279,3 +279,31 @@ def test_compare_two_custom_policies_same_group(client, bihar) -> None:
         r["b"]["result"]["point"] - r["a"]["result"]["point"], abs=0.05
     )
     assert d["low"] <= d["point"] <= d["high"]
+
+
+def test_east_siang_burden_through_simulate_state_and_compare(client) -> None:
+    """D-052: the district whose NFHS-5 level is far below its baseline still responds."""
+    ar = client.get("/api/districts", params={"state": "Arunachal Pradesh"}).json()
+    did = next(p["id"] for p in ar if p["name"] == "East Siang")
+    real = client.get("/api/schemes").json()
+    pmjay = next(s for s in real if s["code"] == "pmjay")["defaults"]
+    worse = {**pmjay, "application_burden": pmjay["application_burden"] + 1}
+    one = client.post(
+        "/api/simulate", json={"district_id": did, "scheme": "pmjay", "inputs": worse}
+    )
+    assert one.json()["result"]["point"] - 30.5 <= -1.0
+    st = client.post(
+        "/api/simulate/state",
+        json={"state": "Arunachal Pradesh", "scheme": "pmjay", "inputs": worse},
+    ).json()
+    mine = next(x for x in st["districts"] if x["district_id"] == did)
+    assert mine["result"]["point"] == pytest.approx(one.json()["result"]["point"])
+    cmp = client.post(
+        "/api/compare",
+        json={
+            "district_id": did,
+            "a": {"scheme": "pmjay"},
+            "b": {"scheme": "pmjay", "inputs": worse},
+        },
+    ).json()
+    assert cmp["difference"]["point"] <= -1.0

@@ -144,3 +144,30 @@ def test_out_of_range_uses_real_scheme_envelope(svc: Service) -> None:
     inside = SCHEMES["pmuy"].inputs
     assert not svc.out_of_range(inside)
     assert svc.out_of_range(inside.model_copy(update={"application_burden": 5}))
+
+
+def _district(svc: Service, state: str, name: str) -> str:
+    return next(p["id"] for p in svc.districts(state) if p["name"] == name and p["has_data"])
+
+
+def test_east_siang_pmjay_plus_one_burden_is_at_least_one_pp(svc: Service) -> None:
+    """D-052: NFHS-5 (30.5) is far below the imputed baseline (56.3); sliders must still work."""
+    row = svc.row_for(_district(svc, "Arunachal Pradesh", "East Siang"), "pmjay")
+    assert svc.partial[row] and svc.x.baseline[row] * 100 > svc.x.target[row]  # old failure
+    real = svc.real_inputs(row)
+    worse = real.model_copy(update={"application_burden": real.application_burden + 1})
+    ch = svc.run(np.array([row]), worse, None).changes[0]
+    assert ch[1] <= -1.0  # central set
+    assert ch[0] > ch[1] > ch[2]
+
+
+def test_plus_one_burden_is_small_only_at_the_ceiling_or_floor(svc: Service) -> None:
+    """D-052: a change under 0.5 pp is allowed only where the level is >= 90% or <= 10%."""
+    x = svc.x
+    from govsim.evaluate.sanity import modify
+    from govsim.hybrid import slider_change
+
+    ch = slider_change(x, modify(x, "+1 burden"), svc.betas["central"], x.target)
+    small = np.abs(ch) < 0.5
+    assert (small & (x.target > 10) & (x.target < 90)).sum() == 0
+    assert (ch <= 0).all()

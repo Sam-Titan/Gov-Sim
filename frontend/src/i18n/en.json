@@ -248,7 +248,8 @@
     "gbmBand": "Baseline error band (10th / 90th)",
     "bandNote": "The range on the Simulator adds this survey error to the spread of the three model sets.",
     "sanityTitle": "What one change does (percentage points)",
-    "sanityIntro": "Median district, anchored at its real NFHS-5 value. Each cell: weak / central / strong.",
+    "sanityIntro": "Median district, starting from its real NFHS-5 value. Each cell: weak / central / strong.",
+    "method": "A slider change moves the district's real NFHS-5 level up or down on a log-odds scale, by the average effect of that change on the people the scheme is for.",
     "change": "Change",
     "alreadyRequired": "already required",
     "sanity": {
@@ -266,6 +267,7 @@
       "deff": "The survey design effect is {{deff}}, {{label}}. The NFHS sheets do not print it.",
       "jsyBirths": "The JSY survey band uses estimated births (women interviewed times a 2011 Census ratio), not a printed count. Half-width: median ±{{median}} pp, largest ±{{max}} pp.",
       "jsyBirthsNoNumbers": "The JSY survey band uses estimated births, not a printed count.",
+      "nfhsDrop": "In some districts (for example in Arunachal Pradesh) NFHS-5 shows much lower PM-JAY health-insurance coverage than NFHS-4. We do not know whether coverage really fell or the two surveys measured it differently.",
       "partial": "{{n}} training rows use a state-level baseline instead of a district value.",
       "noData": "{{n}} of {{total}} listed districts have no result; {{unmapped}} of them are new districts with no 2011 parent.",
       "noDataLoading": "The count of districts without a result is loading.",

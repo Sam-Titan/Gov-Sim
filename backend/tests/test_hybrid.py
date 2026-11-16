@@ -2,11 +2,18 @@ from dataclasses import replace
 
 import numpy as np
 
-from govsim.agents.adoption import build_design, covered_share
+from govsim.agents.adoption import build_design, probabilities
 from govsim.agents.sampler import sample_agents
 from govsim.data.rows import build_rows
 from govsim.evaluate.sanity import modify
-from govsim.hybrid import Range, anchor_shift, combine_range, sampling_band, slider_change
+from govsim.hybrid import (
+    Range,
+    anchor_shift,
+    combine_range,
+    mean_dz,
+    sampling_band,
+    slider_change,
+)
 from govsim.schemes import clamp_benefit
 
 BETA = {
@@ -28,9 +35,28 @@ def _x(districts):
 
 def test_anchor_matches_level(districts) -> None:
     x = _x(districts)
-    level = np.clip(x.target, 100 * x.baseline + 1, 98)
+    level = np.clip(x.target, 1, 98)
     shift = anchor_shift(x, BETA, level)
-    assert np.allclose(covered_share(replace(x, shift=shift), BETA), level, atol=0.05)
+    mean_p = (probabilities(replace(x, shift=shift), BETA) * x.type_w).sum(axis=1)
+    assert np.allclose(100 * mean_p / x.type_w.sum(axis=1), level, atol=0.05)
+
+
+def test_slider_change_is_logit_shift_of_whole_level(districts) -> None:
+    x = _x(districts)
+    new = modify(x, "+1 burden")
+    dz = BETA["b5"] * 0.5  # burden is (b - 3) / 2, so +1 step = +0.5; same for every agent type
+    level = np.clip(x.target, 0.5, 99.5)
+    expected = 100 / (1 + np.exp(-(np.log(level / (100 - level)) + dz))) - level
+    assert np.allclose(slider_change(x, new, BETA, x.target), expected)
+    assert np.allclose(mean_dz(x, new, BETA), dz)
+
+
+def test_slider_change_ignores_baseline(districts) -> None:
+    x = _x(districts)
+    a = slider_change(x, modify(x, "+1 burden"), BETA, x.target)
+    x2 = replace(x, baseline=np.full_like(x.baseline, 0.9))
+    b = slider_change(x2, modify(x2, "+1 burden"), BETA, x2.target)
+    assert np.allclose(a, b)
 
 
 def test_zero_change_is_zero_and_signs(districts) -> None:
