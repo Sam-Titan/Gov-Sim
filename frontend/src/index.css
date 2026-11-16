@@ -16,6 +16,12 @@
   --color-surface: #ffffff;
   --color-ink: #15161a;
   --color-line: #dedcd2;
+  --color-surface-2: #edece6;
+  --color-ink-muted: #55575f;
+  --color-ink-faint: #85868d;
+  --color-line-strong: #c7c5b8;
+  --color-accent-soft: #e4ecf6;
+  --color-alert-soft: #f7e3e0;
   --color-accent: #204a7d;
   --color-agent: #2a78d6;
   --color-gbm: #eb6834;
@@ -27,4 +33,25 @@
 
 body {
   @apply bg-bg text-ink font-sans;
+}
+
+/* Dark tokens: demo bulletin (SPEC section 9). */
+.dark {
+  --color-bg: #131311;
+  --color-surface: #1c1c19;
+  --color-surface-2: #232320;
+  --color-ink: #f2f1ea;
+  --color-ink-muted: #c3c1b5;
+  --color-ink-faint: #8f8d81;
+  --color-line: #35342e;
+  --color-line-strong: #46453d;
+  --color-accent: #7fa9db;
+  --color-accent-soft: #1e2c3d;
+  --color-agent: #3987e5;
+  --color-gbm: #d97a4e;
+  --color-alert: #e2726d;
+  --color-alert-soft: #3a201f;
+  --color-good: #3fbf3f;
+  --color-warn: #d9a53a;
+  color-scheme: dark;
 }

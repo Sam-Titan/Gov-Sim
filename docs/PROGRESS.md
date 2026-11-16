@@ -3,7 +3,7 @@
 Update after every task. Newest log entries at the top.
 
 ## Current phase
-**Phase 3 — Fast model + API** (signed off 2026-11-15). Next: Phase 4, not started.
+**Phase 4 — Simulator page** (signed off 2026-11-16). Next: Phase 5, plan shown to Sam, not started.
 
 ## Phase status
 | Phase | Status | Sam signed off |
@@ -12,7 +12,7 @@ Update after every task. Newest log entries at the top.
 | 1 Data | ✅ Done | ✅ Sam, 2026-11-15 |
 | 2 Model | ✅ Done | ✅ Sam, 2026-11-15 |
 | 3 Fast model + API | ✅ Done | ✅ Sam, 2026-11-15 |
-| 4 Simulator page | ⏳ Not started | — |
+| 4 Simulator page | ✅ Done | ✅ Sam, 2026-11-16 |
 | 5 Other pages | ⏳ Not started | — |
 | 6 Downloads + Hindi | ⏳ Not started | — |
 | 7 Test + launch | ⏳ Not started | — |
@@ -31,6 +31,42 @@ Update after every task. Newest log entries at the top.
 - [x] `data/processed/README.md` (source and licence per file); map has `has_nfhs_data`; DD state name fixed
 - [x] Follow-ups (D-036): `xlrd`, Census C-13 age 60+ (35 xls, 640 districts), drop widows/electricity, beta7 deprivation score, beta2 state income (Economic Survey table 1.11A)
 - [x] **Phase 1 done.** `just check` and `just test` pass. Waiting for Sam's sign-off.
+
+## Phase 4 tasks
+- [x] Packages (approved, D-047): `maplibre-gl` 6.18.0, `react-map-gl` 8.1.3, `@radix-ui/react-slider` 1.6.1, `@radix-ui/react-switch` 1.4.1 (the two Radix packages are what the shadcn slider and switch need; select and tooltip are not used)
+- [x] Hey API: `/simulate`, `/simulate/state`, `/compare` generated as query options (`openapi-ts.config.ts` `isQuery` hook); client regenerated
+- [x] App shell: header, EN/HI switch, light/dark/system theme (Zustand `store/ui.ts`, saved in localStorage), React Router
+- [x] "Waking up the server…" screen (polls `/api/health` every 3 s)
+- [x] State / district / scheme pickers; districts without data are marked and show the reason
+- [x] Sliders from `/schemes` (cash on a log scale, PM-JAY labelled "not cash"), reset button, 150 ms debounce, "outside what real schemes do" note, "assumed by team" tags
+- [x] Result panel: metric label, range (rounded outward), middle value, data level + model change, top 3 reasons, all 5 warnings; keeps the old result while loading
+- [x] Map: India + state outlines, zoom to state, click to pick, colourblind-safe scale, hatch for `low_confidence`, legend, credit. Fixed MapLibre worker URL (dev and production build)
+- [x] Scenario in the URL (state, district, scheme, moved sliders)
+- [x] New file `data/processed/states.geojson` (state outlines merged by current state, made by `scripts/geo.py`), copied with `districts.geojson` to `frontend/public/geo/`
+- [x] 24 frontend tests (URL, log slider, sliders, result panel, map data, App wake-up, EN/HI key parity); `just check` and `just test` pass (78 backend + 26 frontend)
+- [x] Checked in a real browser (Playwright): UP/Lucknow SBM, slider moves, URL update, no-data district, India click, Hindi, dark mode, hatch, wake-up screen, production build
+
+## Phase 4 notes for Sam
+- **Draft Hindi (review in Phase 6):** every key except `app.*`, `health.*`, `lang.en`, `lang.hi` is new and draft. Marked with `_draft` in `hi.json`.
+- **Dark colours** are now the demo bulletin tokens (SPEC §9).
+- **State outlines** merge districts by current state (D-045): Telangana and Ladakh are their own (36 outlines).
+- `states.geojson` is 0.93 MB, `districts.geojson` 1.17 MB, both loaded once.
+- Not done on purpose: custom policy, Compare, Report, About (Phase 5); CSV and print (Phase 6); Playwright e2e (Phase 7). Language and theme are saved in localStorage.
+- Browser Back does not undo slider moves (URL uses `replace`): approved by Sam.
+
+## Phase 4 boundary check (2026-11-16) — nothing changed, Sam to decide
+What I did: measured the SHRUG polygons (`data/raw/district.shp`, and the simplified file) in an equal-area-style projection (EPSG:7755). I have **no official boundary file** to overlay, so this is a size and extent check only. Official areas below are from memory (Census 2011 / Survey of India), not checked against a source here: please verify before you quote them.
+| Item | In our map | Official (from memory) |
+|---|---|---|
+| India total (raw / simplified) | 3,173,620 / 3,172,706 km² | about 3,287,263 km² (3.5% more) |
+| J&K 2011 state (incl. unnamed polygon `000`) | 213,841 km² | about 222,236 km² (3.8% more) |
+| Arunachal Pradesh | 79,833 km² (extent 91.56 to 97.40 E, 26.65 to 29.46 N) | about 83,743 km² (4.7% more) |
+- **J&K / Ladakh:** the map **does** extend over the areas India claims. The polygon `000` (no name, no data; 108,989 km², 72.5 to 80.3 E, 34.0 to 37.1 N) covers the Gilgit-Baltistan and Aksai Chin region. Leh (49,685 km²) stops at 79.5 E, so Aksai Chin is in `000`, not in Leh. Named Ladakh and J&K districts are drawn at their administered extent. Our total for the claimed area is about 4% short of the official figure, so the outer edge is close but not the same line, and I can't say where the difference is.
+- **Arunachal:** the extent matches the official one (north to about 29.46 N) but the area is about 5% smaller. Possible causes: a different line along the McMahon line / simplification (raw is only 0.1% bigger than simplified, so simplification is not the cause) or the source's own boundary.
+- **Whole map:** the raw polygons are about 3.5% below the official India area. Likely the source's coastline/border differs; not checked.
+- **`000` is not an outline:** it has no name and no state, so it is left out of `states.geojson` (and cannot be clicked). It is drawn grey with a thin district border. Assigning it to a state is a political choice (J&K or Ladakh); I did not do it.
+- Map note added on the page: "District boundaries are approximate and not authoritative" (EN + HI draft). The CC BY-NC-SA credit also says "Boundaries as in Census 2011".
+- **Sam's decision (D-049):** keep the map as it is, with the note. No Survey of India overlay in V1. Polygon `000` is now always "no data" grey, not clickable, with a state-edge outline (no gap).
 
 ## Phase 3 tasks
 - [x] JSY sampling band: n = women interviewed x (Census children 0-6 x 5/7 / Census women 15-49), labelled "estimated" (D-042). New column `women_15_49` in `census_age.parquet`. JSY median half-width ±1.49 -> ±2.34 pp (max 3.38 -> 6.0)
@@ -113,7 +149,7 @@ One oddity: PMUY +1 document is -0.30 (central) and -0.25 (strong): the sets are
 Suggested commit message: `Phase 2 model: hybrid output (NFHS level + anchored agent-model change), fixed assumed betas, sampling bands, LOSTO/LOSO report`
 
 ## Waiting on Sam
-- Nothing. Phase 4 (simulator page) has not started; say "start Phase 4" to begin.
+- Approval of the Phase 5 plan (shown in chat). Phase 5 has not started.
 - Notes carried forward: deff 2.0 is an assumption; JSY n is an estimate (2011 ratio); documents effect not used.
 
 ## Blockers
@@ -174,6 +210,9 @@ D-033 V1 uses 634 mapped districts; D-034 Vidisha and Lakshadweep missing; D-035
 - Phase 1 sign-off only. Open note for Phase 2: Ladakh and Dadra & Nagar Haveli and Daman & Diu (5 districts) have no state income value.
 
 ## Log
+- 2026-11-16 — Phase 4 signed off by Sam. Last changes (D-049): boundary kept as is, polygon `000` fixed (grey, not clickable, outlined), light tokens added to CSS and SPEC §9. 26 frontend tests, `just check` and `just test` pass. Stopped; Phase 5 plan shown, not started.
+- 2026-11-16 — Phase 4 changes before sign-off (D-048): state outlines by current state (36, Telangana and Ladakh own), demo dark tokens (SPEC §9), language saved in localStorage, map note EN + HI draft, boundary check reported (no change). Suggested commit message unchanged.
+- 2026-11-16 — Phase 4 built (D-047). Simulator page: shell, wake-up screen, pickers, sliders, result panel, MapLibre map (state outlines, hatch, colourblind-safe scale), scenario in URL, EN + draft HI. Query options for the POST routes. New `states.geojson`. 24 frontend tests, `just check` and `just test` pass; checked in a browser incl. production build. Stopped for Phase 4 sign-off. Suggested commit message: `Phase 4: simulator page with district map, sliders, result range, URL scenario, EN/HI`
 - 2026-11-15 — Phase 3 signed off by Sam after D-046 (NFHS-4 state value for Delhi and Telangana). 78 tests, `just check` and `just test` pass. Stopped; Phase 4 not started. Suggested commit message: `Phase 3: JSY births band, live anchored model (no surrogate), API routes, group uptake for custom policies, NFHS-4 state baseline`
 - 2026-11-15 — Phase 3 built. JSY births band (D-042), deff labelled assumed, no surrogate (D-043). Live service + 7 routes + warnings + reasons; no-data districts handled; client regenerated; 68 tests, `just check` clean. Stopped for Phase 3 sign-off.
 - 2026-11-15 — Phase 3 changes from Sam: custom-policy group uptake + reach (D-044), current state for Warangal (D-045), no-baseline check (Delhi has no state mean). 76 tests, `just check` and `just test` pass. Stopped for Phase 3 sign-off. Suggested commit message: `Phase 3: JSY births band, live anchored model (no surrogate), API routes, tests`

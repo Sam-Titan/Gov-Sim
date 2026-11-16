@@ -213,7 +213,16 @@ Hey API — never hand-written.
   IBM Plex Sans Devanagari (Hindi).
 - Colour tokens (light): bg `#f5f5f2`, surface `#ffffff`, ink `#15161a`, line `#dedcd2`,
   accent `#204a7d`, agent series `#2a78d6`, GBM series `#eb6834`, stamp/alert `#b7342f`,
-  good `#0ca30c`, warn `#b9820a`. Dark tokens as in the demo bulletin.
+  good `#0ca30c`, warn `#b9820a`; plus (from the demo bulletin, Sam 2026-11-16) surface-2 `#edece6`,
+  ink-muted `#55575f`, ink-faint `#85868d`, line-strong `#c7c5b8`, accent-soft `#e4ecf6`,
+  stamp-soft `#f7e3e0`.
+- Colour tokens (dark, from the demo bulletin, given by Sam 2026-11-16): bg `#131311`,
+  surface `#1c1c19`, surface-2 `#232320`, ink `#f2f1ea`, ink-muted `#c3c1b5`, ink-faint
+  `#8f8d81`, line `#35342e`, line-strong `#46453d`, accent `#7fa9db`, accent-soft `#1e2c3d`,
+  agent series `#3987e5`, GBM series `#d97a4e`, stamp/alert `#e2726d`, stamp-soft `#3a201f`,
+  good `#3fbf3f`, warn `#d9a53a`.
+- Map: the unnamed polygon `000` is always "no data" grey, not clickable, and outlined like a state edge (no gap in India's outline). States are outlined by merging districts by their current state (D-045); the map shows
+  the note "District boundaries are approximate and not authoritative" (EN + HI).
 - Report-style panels, thin borders, 4px radius. Tables with right-aligned mono numbers.
 
 ## 10. Toolkit (locked — new tools need Sam's approval)

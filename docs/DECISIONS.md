@@ -280,3 +280,26 @@ Decided by Sam. Extends the baseline rule of D-038 and D-045.
 - Stored in its own file (`nfhs4_state_baseline.parquet`), never as a trait (these are target indicators).
 - Used by the live service only. Phase 2 training still excludes these 18 rows (D-038), so `report.json` is unchanged. The live service now has 629 rows for PM-JAY and PMUY (was 611); `no_baseline` stays as a safety reason but no real district uses it.
 - **Known limit:** in 167 of 629 PM-JAY rows (8 of the 18 new Telangana ones) the NFHS-5 value is not above the NFHS-4 baseline (coverage fell, e.g. RSBY ended). The model cannot go below the baseline, so it anchors at baseline + 0.5 pp and the slider change is measured from there. The displayed level is still the actual NFHS-5 value. PMUY: 23 of 629 rows.
+
+## D-047 — Simulator page choices (2026-11-16)
+Decided by Sam (plan approval for Phase 4).
+- **Packages:** `maplibre-gl`, `react-map-gl`, and the Radix primitives for the shadcn slider and switch (`@radix-ui/react-slider`, `@radix-ui/react-switch`). Nothing else.
+- **Map:** no basemap tiles (districts only, no third-party service); GeoJSON served from `frontend/public/geo/`; India view with state outlines first, then zoom to the chosen state. Colourblind-safe sequential scale (ColorBrewer YlGnBu, 8 classes of 12.5 pp); `low_confidence` districts hatched; legend says "middle value, see the range in the panel". State outlines (`states.geojson`) merge districts by their **current** state (D-045), so Telangana and Ladakh are their own states (36 outlines).
+- **Data fetching:** `/simulate`, `/simulate/state` and `/compare` are POST but generated as TanStack **query options** (Hey API `isQuery` hook in `openapi-ts.config.ts`), so requests are cached and cancelled when outdated. The previous result stays on screen while a new one loads.
+- **URL:** state, district, scheme and moved sliders live in the search params, so a scenario can be shared by link. Zustand holds UI state only (theme).
+- **Metric label** on every result (D-030). Range ends round outward (low down, high up).
+- **Light/dark** follows the system by default, with a manual toggle. Dark colour tokens are the demo bulletin's, given by Sam and added to SPEC §9.
+- **Hindi:** all new Hindi strings are **draft**; Sam reviews them in Phase 6 (list in PROGRESS).
+
+## D-048 — Phase 4 changes before sign-off (2026-11-16)
+Decided by Sam.
+- State outlines merged by current state (D-045); dark tokens from the demo bulletin (SPEC §9); language choice saved in localStorage (`govsim.lang`) like the theme.
+- Map note "District boundaries are approximate and not authoritative" (EN + HI draft).
+- Approved as they are: Back button does not undo slider moves (URL uses `replace`), the MapLibre worker fix, local GeoJSON types.
+- **Boundary check:** reported in PROGRESS. No geometry changed; Sam decides.
+
+## D-049 — Map boundary: keep as is; polygon 000; light tokens (2026-11-16)
+Decided by Sam.
+- **Boundary:** keep the map as it is, with the note "District boundaries are approximate and not authoritative". No Survey of India overlay in V1. (Check results: PROGRESS "Phase 4 boundary check".)
+- **Polygon `000`** (unnamed, Gilgit-Baltistan / Aksai Chin region) is always drawn in the "no data" grey, is not clickable, and has a state-edge outline, so India's outline has no gap.
+- **Light tokens** from the demo bulletin added (surface-2 `#edece6`, ink-muted `#55575f`, ink-faint `#85868d`, line-strong `#c7c5b8`, accent-soft `#e4ecf6`, stamp-soft `#f7e3e0`); SPEC §9 updated.

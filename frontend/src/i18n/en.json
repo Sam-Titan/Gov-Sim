@@ -1,9 +1,116 @@
 {
-  "app": { "title": "GovSim", "tagline": "Test a welfare scheme before launch" },
+  "app": {
+    "title": "GovSim",
+    "tagline": "Test a welfare scheme before launch"
+  },
   "health": {
     "checking": "Checking the server…",
     "ok": "Server is running",
     "waking": "Waking up the server…"
   },
-  "lang": { "en": "English", "hi": "हिन्दी" }
+  "lang": {
+    "en": "English",
+    "hi": "हिन्दी",
+    "switch": "Language"
+  },
+  "wake": {
+    "title": "Waking up the server…",
+    "body": "The free server sleeps when unused. This can take up to a minute. The page will open by itself."
+  },
+  "theme": {
+    "label": "Theme",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "picker": {
+    "state": "State",
+    "district": "District",
+    "scheme": "Scheme",
+    "chooseState": "Choose a state",
+    "chooseDistrict": "Choose a district",
+    "noData": "no data",
+    "loading": "Loading…",
+    "loadError": "Could not load the list. Check your connection and try again."
+  },
+  "scheme": {
+    "pmjay": "PM-JAY (health cover)",
+    "pmuy": "PMUY (cooking gas)",
+    "jsy": "JSY (institutional births)",
+    "sbm": "SBM (toilets)",
+    "proxy": "Proxy: a survey measure, not an official sign-up count"
+  },
+  "metric": {
+    "households": "Share of all households",
+    "births": "Share of all births (last 5 years)",
+    "people": "Share of all people"
+  },
+  "noDataReason": {
+    "unmapped": "This district was created after the 2011 Census and has no 2011 parent in our data.",
+    "no_state_income": "No state income value is available for this district.",
+    "no_nfhs_sheet": "No NFHS-5 district fact sheet was found for this district."
+  },
+  "sliders": {
+    "title": "Scheme settings",
+    "reset": "Back to real settings",
+    "cash_benefit_inr": "Benefit value (₹)",
+    "cash_benefit_inr_noncash": "Cover per household (₹, not cash)",
+    "document_count": "Documents needed",
+    "requires_bank_account": "Bank account required",
+    "application_burden": "Application burden (1 easy, 5 hard)",
+    "benefit_immediacy": "Speed of benefit (1 slow, 5 fast)",
+    "real": "Real schemes: {{min}} to {{max}}",
+    "realValue": "Real value: {{value}}",
+    "assumed": "assumed by team",
+    "yes": "Yes",
+    "no": "No",
+    "outside": "Outside what real schemes do"
+  },
+  "result": {
+    "title": "Expected result",
+    "empty": "Choose a state, a district and a scheme to see a result.",
+    "range": "{{low}}–{{high}}%",
+    "middle": "Middle value: {{point}}%",
+    "rangeNote": "Plan with the range, not the middle value.",
+    "fromData": "From data (NFHS-5): {{level}}%",
+    "fromModel": "Model assumption: change from the real settings, {{central}} pp (range {{weak}} to {{strong}} pp)",
+    "reasonsTitle": "What moves the result most",
+    "noReasons": "No setting differs from the real scheme.",
+    "warningsTitle": "Please note",
+    "updating": "Updating…",
+    "error": "Could not get a result. Try again.",
+    "noData": "No result for this district.",
+    "invalid": "These settings are not allowed for this scheme."
+  },
+  "reason": {
+    "benefit": "Benefit value",
+    "documents": "Documents needed",
+    "bank_account": "Bank account required",
+    "burden": "Application burden",
+    "speed": "Speed of benefit",
+    "target_group": "Target group",
+    "up": "raises uptake by {{pp}} pp",
+    "down": "lowers uptake by {{pp}} pp"
+  },
+  "warning": {
+    "survey_estimate": "Based on a household survey (NFHS), not official sign-up counts. District values carry sampling error and cover more than this scheme alone.",
+    "low_confidence": "The range is wider than 30 percentage points. Treat this result with caution.",
+    "new_policy": "This is a new policy, far from any real scheme. The range is wider.",
+    "out_of_range": "Beyond what real schemes do: a setting is outside the values of real schemes, so the model is less certain.",
+    "partial_data": "Some data for this state is missing or comes from a state average."
+  },
+  "map": {
+    "title": "Map",
+    "titleState": "{{state}}: districts by uptake",
+    "titleIndia": "India: choose a state",
+    "loading": "Loading the map…",
+    "loadError": "Could not load the map. You can still choose a district from the list.",
+    "legendTitle": "Middle value (%) — see the range in the panel",
+    "legendNoData": "No data",
+    "legendHatch": "Hatched: low confidence (range wider than 30 pp)",
+    "credit": "District map: SHRUG v2.1 (Development Data Lab), CC BY-NC-SA 4.0. Boundaries as in Census 2011.",
+    "hint": "Click a state or district to select it.",
+    "aria": "Map of districts",
+    "note": "District boundaries are approximate and not authoritative."
+  }
 }

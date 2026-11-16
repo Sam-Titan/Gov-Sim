@@ -113,6 +113,24 @@ export const getSchemesOptions = (options?: Options<GetSchemesData>) => queryOpt
     queryKey: getSchemesQueryKey(options)
 });
 
+export const simulateQueryKey = (options: Options<SimulateData>) => createQueryKey('simulate', options);
+
+/**
+ * Simulate
+ */
+export const simulateOptions = (options: Options<SimulateData>) => queryOptions<SimulateResponse2, SimulateError, SimulateResponse2, ReturnType<typeof simulateQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await simulate({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: simulateQueryKey(options)
+});
+
 /**
  * Simulate
  */
@@ -129,6 +147,26 @@ export const simulateMutation = (options?: Partial<Options<SimulateData>>): UseM
     };
     return mutationOptions;
 };
+
+export const simulateStateQueryKey = (options: Options<SimulateStateData>) => createQueryKey('simulateState', options);
+
+/**
+ * Simulate State
+ *
+ * One row per district of the state. Districts with no data come back `has_data: false`.
+ */
+export const simulateStateOptions = (options: Options<SimulateStateData>) => queryOptions<SimulateStateResponse, SimulateStateError, SimulateStateResponse, ReturnType<typeof simulateStateQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await simulateState({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: simulateStateQueryKey(options)
+});
 
 /**
  * Simulate State
@@ -148,6 +186,24 @@ export const simulateStateMutation = (options?: Partial<Options<SimulateStateDat
     };
     return mutationOptions;
 };
+
+export const compareQueryKey = (options: Options<CompareData>) => createQueryKey('compare', options);
+
+/**
+ * Compare
+ */
+export const compareOptions = (options: Options<CompareData>) => queryOptions<CompareResponse2, CompareError, CompareResponse2, ReturnType<typeof compareQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await compare({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: compareQueryKey(options)
+});
 
 /**
  * Compare
