@@ -16,7 +16,7 @@ describe("ResultPanel", () => {
     render(<ResultPanel {...base} data={data} />);
     expect(screen.getByTestId("range").textContent).toBe("38–56%");
     expect(screen.getByText("Share of all people")).toBeTruthy();
-    expect(screen.getByText("Benefit value")).toBeTruthy();
+    expect(screen.getByText(/Raising the benefit|Benefit value/)).toBeTruthy();
     expect(screen.getAllByRole("listitem").length).toBeGreaterThanOrEqual(5);
     expect(screen.getByText(/Based on a household survey/)).toBeTruthy();
     expect(screen.getByText(/Beyond what real schemes do/)).toBeTruthy();

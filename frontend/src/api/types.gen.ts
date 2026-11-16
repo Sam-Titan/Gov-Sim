@@ -274,6 +274,10 @@ export type ReportResponse = {
      */
     agent_model_beats_gbm: boolean;
     /**
+     * Generated
+     */
+    generated: string;
+    /**
      * N Districts
      */
     n_districts: number;

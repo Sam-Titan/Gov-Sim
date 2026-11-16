@@ -27,11 +27,16 @@ function Header() {
   const Icon = ICON[theme];
   const next = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length] ?? "system";
   return (
-    <header className="border-b border-line bg-surface">
+    <header className="border-b border-line bg-surface print:hidden">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 p-4">
         <div>
           <h1 className="font-serif text-2xl">{t("app.title")}</h1>
           <p className="text-sm opacity-80">{t("app.tagline")}</p>
+          {i18n.language.startsWith("hi") && (
+            <p role="note" className="mt-1 text-xs font-semibold text-warn">
+              {t("app.hindiDraft")}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <fieldset className="flex gap-1">

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { SimulateResponse, WarningCode } from "@/api/types.gen";
 import { formatNumber, rangeEnds, signed } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { reasonSentence } from "./reasonText";
 
 export type ResultError = "no_data" | "invalid" | "other";
 
@@ -105,10 +106,13 @@ export function ResultBody({ data, updating }: { data: SimulateResponse; updatin
                   <ArrowDown className="size-4 text-alert" aria-hidden="true" />
                 )}
                 <span>
-                  <strong>{t(`reason.${x.term}`, { defaultValue: x.term })}</strong>{" "}
-                  {t(x.direction === "up" ? "reason.up" : "reason.down", {
-                    pp: n(Math.abs(x.effect_pp)),
-                  })}
+                  {reasonSentence(
+                    x,
+                    data.real_inputs,
+                    data.used_inputs,
+                    t,
+                    n(Math.abs(x.effect_pp)),
+                  )}
                 </span>
               </li>
             ))}

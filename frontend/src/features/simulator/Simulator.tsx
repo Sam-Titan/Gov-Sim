@@ -11,6 +11,8 @@ import {
 } from "@/api/@tanstack/react-query.gen";
 import { Switch } from "@/components/ui/switch";
 import { CustomPolicy, type PolicyDraft } from "@/features/custom-policy/CustomPolicy";
+import { DownloadBar, PrintSummary, useMeta } from "@/features/downloads/Downloads";
+import { simulateCsv, stateCsv } from "@/features/downloads/rows";
 import { DistrictMap } from "@/features/map/DistrictMap";
 import { stateIds } from "@/features/map/geo";
 import { useGeo } from "@/features/map/useGeo";
@@ -45,7 +47,8 @@ function errorReason(e: unknown): string | null {
 }
 
 export function Simulator() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const meta = useMeta();
   const theme = useUi((s) => s.theme);
   const [params, setParams] = useSearchParams();
   const sc = useMemo(() => parseScenario(params), [params]);
@@ -99,8 +102,8 @@ export function Simulator() {
   const noDataReason = errorReason(sim.error) ?? place?.reason;
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-6 p-4 lg:grid-cols-[22rem_1fr]">
-      <div className="grid content-start gap-6">
+    <div className="mx-auto grid max-w-7xl gap-6 p-4 lg:grid-cols-[22rem_1fr] print:block">
+      <div className="grid content-start gap-6 print:hidden">
         {loadError && (
           <p role="alert" className="text-alert">
             {t("picker.loadError")}
@@ -144,6 +147,7 @@ export function Simulator() {
       </div>
 
       <div className="grid content-start gap-6">
+        {ready && sim.data && <PrintSummary items={[sim.data]} meta={meta} />}
         <ResultPanel
           ready={ready || showError === "no_data"}
           data={ready ? sim.data : undefined}
@@ -151,22 +155,48 @@ export function Simulator() {
           error={showError}
           noDataReason={noDataReason}
         />
-        {geo.data ? (
-          <DistrictMap
-            geo={geo.data}
-            dark={isDark(theme)}
-            state={sc.state}
-            stateDistrictIds={ids}
-            rows={stateSim.data?.districts ?? []}
-            selected={sc.district}
-            onPick={pickFromMap}
-            group={sc.custom}
+        {ready && sim.data && (
+          <DownloadBar
+            fileKey="download.simulateFile"
+            build={() => (sim.data ? simulateCsv(sim.data, t, i18n.language, meta) : null)}
           />
-        ) : (
-          <p role={geo.isError ? "alert" : "status"}>
-            {geo.isError ? t("map.loadError") : t("map.loading")}
-          </p>
         )}
+        <div className="grid gap-6 print:hidden">
+          {stateSim.data && (
+            <DownloadBar
+              fileKey="download.stateFile"
+              label="download.csvState"
+              print={false}
+              build={() =>
+                stateSim.data && scheme
+                  ? stateCsv(
+                      stateSim.data,
+                      toSetting(sc, scheme.defaults),
+                      scheme.defaults,
+                      t,
+                      meta,
+                    )
+                  : null
+              }
+            />
+          )}
+          {geo.data ? (
+            <DistrictMap
+              geo={geo.data}
+              dark={isDark(theme)}
+              state={sc.state}
+              stateDistrictIds={ids}
+              rows={stateSim.data?.districts ?? []}
+              selected={sc.district}
+              onPick={pickFromMap}
+              group={sc.custom}
+            />
+          ) : (
+            <p role={geo.isError ? "alert" : "status"}>
+              {geo.isError ? t("map.loadError") : t("map.loading")}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

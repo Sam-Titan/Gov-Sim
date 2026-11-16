@@ -6,6 +6,7 @@ backend/artifacts/report.json and betas.json. Surrogate training is Phase 3.
 """
 
 import json
+from datetime import date
 from pathlib import Path
 
 import numpy as np
@@ -133,6 +134,8 @@ def main() -> None:
         f"noise_{k}pp": recover(x, central, noise_sd=k, fixed=fixed_c) for k in (1.0, 3.0)
     }
     report["fitted_terms"] = [k for k in FITTED if k in FIT_TERMS]
+
+    report["generated"] = date.today().isoformat()
 
     ARTIFACTS.mkdir(exist_ok=True)
     (ARTIFACTS / "report.json").write_text(json.dumps(report, indent=2))

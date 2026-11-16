@@ -11,6 +11,8 @@ import {
 import type { CompareResponse, SchemeOut } from "@/api/types.gen";
 import { Switch } from "@/components/ui/switch";
 import { CustomPolicy, type PolicyDraft } from "@/features/custom-policy/CustomPolicy";
+import { DownloadBar, PrintSummary, useMeta } from "@/features/downloads/Downloads";
+import { compareCsv } from "@/features/downloads/rows";
 import { Pickers, SchemePicker } from "@/features/simulator/Pickers";
 import { ResultBody } from "@/features/simulator/ResultPanel";
 import { Sliders } from "@/features/simulator/Sliders";
@@ -161,7 +163,8 @@ export function DifferencePanel({ data }: { data: CompareResponse }) {
 }
 
 export function Compare() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const meta = useMeta();
   const [params, setParams] = useSearchParams();
   const sc = useMemo(() => readParams(params), [params]);
   const states = useQuery(getStatesOptions());
@@ -207,7 +210,7 @@ export function Compare() {
       </div>
 
       {states.data && districts.data && schemes.data ? (
-        <div className="max-w-xl">
+        <div className="max-w-xl print:hidden">
           <Pickers
             hideScheme
             states={states.data}
@@ -230,7 +233,7 @@ export function Compare() {
       )}
 
       {schemes.data && (
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-2 print:hidden">
           <PolicyColumn side="a" policy={sc.a} schemes={schemes.data} onPolicy={patchA} />
           <PolicyColumn side="b" policy={sc.b} schemes={schemes.data} onPolicy={patchB} />
         </div>
@@ -248,6 +251,11 @@ export function Compare() {
         </p>
       ) : cmp.data ? (
         <div className="grid gap-6">
+          <PrintSummary items={[cmp.data.a, cmp.data.b]} meta={meta} />
+          <DownloadBar
+            fileKey="download.compareFile"
+            build={() => (cmp.data ? compareCsv(cmp.data, t, i18n.language, meta) : null)}
+          />
           <DifferencePanel data={cmp.data} />
           <div className="grid gap-6 lg:grid-cols-2">
             {(["a", "b"] as const).map((side) => (

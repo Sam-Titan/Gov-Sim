@@ -4,6 +4,7 @@ The fitted betas stay as they are in betas.json; the slider-change method change
 """
 
 import json
+from datetime import date
 
 from govsim.agents.adoption import build_design
 from govsim.agents.sampler import sample_agents
@@ -21,6 +22,7 @@ def main() -> None:
     path = ARTIFACTS / "report.json"
     report = json.loads(path.read_text())
     report["sanity_table_pp"] = sanity_table(x, rows["scheme"].to_numpy(), sets)
+    report["generated"] = date.today().isoformat()
     path.write_text(json.dumps(report, indent=2))
     print(json.dumps(report["sanity_table_pp"], indent=1))
 

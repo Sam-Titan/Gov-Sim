@@ -19,6 +19,7 @@ class ReportResponse(BaseModel):
     """
 
     agent_model_beats_gbm: bool
+    generated: str  # ISO date `just train` (or refresh_sanity) last wrote report.json
     n_districts: int
     n_rows: int
     n_agents: int

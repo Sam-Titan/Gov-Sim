@@ -1,9 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import App from "./App";
 import { client } from "./api/client.gen";
-import "./i18n/setup";
+import i18n from "./i18n/setup";
 
 vi.mock("./features/map/DistrictMap", () => ({ DistrictMap: () => <div>map</div> }));
 
@@ -65,5 +65,17 @@ describe("App", () => {
     mockApi(true);
     renderApp("/compare");
     expect(await screen.findByText("Compare two settings")).toBeTruthy();
+  });
+
+  it("shows the Hindi draft note only in Hindi, and hides the header when printing", async () => {
+    mockApi(true);
+    await i18n.changeLanguage("en");
+    renderApp();
+    await screen.findByText("Expected result");
+    expect(screen.queryByRole("note")).toBeNull();
+    expect(screen.getByRole("banner").className).toContain("print:hidden");
+    await act(() => i18n.changeLanguage("hi"));
+    expect(screen.getByRole("note").textContent).toBe("हिन्दी अनुवाद अभी मसौदा है");
+    await act(() => i18n.changeLanguage("en"));
   });
 });

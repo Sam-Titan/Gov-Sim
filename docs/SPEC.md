@@ -166,7 +166,7 @@ Removed: `digital_only` (D-031). `requires_bank_account` stays until Phase 2 sho
 - Sliders (§6).
 - Result: uptake range (e.g. 28–35%), mid value, top 3 reasons, warnings.
 - Map: the chosen state's districts coloured by predicted uptake.
-- Download: CSV, and "Print / Save as PDF".
+- Download: CSV, and "Print / Save as PDF". CSV (Simulator result, state table, Compare result): UTF-8 with BOM, language follows the page, text cells starting with `=`, `+`, `-`, `@` get a `'` prefix (numbers stay numbers), every row carries the scenario link, the date and the model/data version (`generated` date of `report.json`). Print view adds the settings used, the same link, date and version, the sources line and the disclaimer; map, menu and controls are hidden, light colours (D-054).
 
 ### 7.2 Custom policy (inside Simulator)
 - Name the policy.

@@ -9,9 +9,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-serif: "IBM Plex Serif", serif;
+  --font-serif: "IBM Plex Serif", "IBM Plex Sans Devanagari", serif;
   --font-sans: "IBM Plex Sans", "IBM Plex Sans Devanagari", sans-serif;
-  --font-mono: "IBM Plex Mono", monospace;
+  --font-mono: "IBM Plex Mono", "IBM Plex Sans Devanagari", monospace;
   --color-bg: #f5f5f2;
   --color-surface: #ffffff;
   --color-ink: #15161a;
@@ -54,4 +54,34 @@ body {
   --color-good: #3fbf3f;
   --color-warn: #d9a53a;
   color-scheme: dark;
+}
+
+/* Print ("Save as PDF"): light colours, no menu, map or controls (hidden with print:hidden). */
+@media print {
+  :root,
+  .dark {
+    color-scheme: light;
+    --color-bg: #ffffff;
+    --color-surface: #ffffff;
+    --color-ink: #15161a;
+    --color-line: #dedcd2;
+    --color-surface-2: #f5f5f2;
+    --color-ink-muted: #55575f;
+    --color-ink-faint: #85868d;
+    --color-line-strong: #c7c5b8;
+    --color-accent-soft: #e4ecf6;
+    --color-alert-soft: #f7e3e0;
+    --color-accent: #204a7d;
+    --color-agent: #2a78d6;
+    --color-gbm: #eb6834;
+    --color-alert: #b7342f;
+    --color-good: #0ca30c;
+    --color-warn: #b9820a;
+  }
+  @page {
+    margin: 14mm;
+  }
+  section {
+    break-inside: avoid;
+  }
 }

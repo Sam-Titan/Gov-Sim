@@ -334,3 +334,15 @@ Decided by Sam.
 - **Warning:** `partial_data` shows only when a state-level figure (the same value for every district of a state) affects the result: per-capita income when the benefit slider is moved (benefit term), bank accounts when the bank-requirement switch is moved, or for a custom policy that filters on "unbanked" or requires a bank account. `state_level_traits` in the response now lists only the traits that matter. An imputed PM-JAY / PMUY baseline no longer shows it (it no longer affects slider results, D-052).
 - **Text (EN):** "This result uses state-level figures (bank accounts, income) that are the same for every district in the state." HI draft in `hi.json`.
 - **Report:** `/report` now has `pmjay_nfhs5_not_above_nfhs4` (`n`, `of`, `n_own`, `of_own`), counted from the data at request time. Today: 160 of 629 districts; 139 of the 567 that have their own NFHS-4 value (the other 21 of 62 compare with the state value). The page shows both numbers.
+
+## D-054 — Phase 6 defaults: downloads and Hindi (2026-11-16)
+Decided by Sam.
+- **Names:** state and district names stay in English in V1 (no Hindi names in the data, `name_hi` stays empty).
+- **CSV:** for the Simulator result, the state table (button next to the map; with slider used/real columns and target group, from the settings the page sent) and the Compare result (A, B and a B minus A row). UTF-8 with BOM so Excel shows Hindi. Language follows the page. Numbers are plain numbers (no grouping) in the file.
+- **CSV safety:** a text cell starting with `=`, `+`, `-` or `@` gets a `'` prefix (also tab and carriage return). Numeric cells, including negatives, are never changed.
+- **Provenance:** every CSV row and the print view carry the scenario link (current URL), the date and the model/data version. The version is a new `generated` date in `report.json` (written by `just train` and `refresh_sanity.py`, returned by `/report`). It was set once to 2026-11-16 without retraining (the artifacts were last rewritten that day by D-052).
+- **Digits:** Latin digits with Indian grouping in Hindi (already how `lib/format.ts` works).
+- **Reasons:** the sentence says what the user did: slider moved up/down or the bank requirement added/removed ("Removing the bank account requirement raises uptake by 1.2 pp"). Computed in the frontend from `real_inputs` vs `used_inputs`. No slider move (target group) keeps the generic text.
+- **Hindi review deferred:** `hi.json` stays draft; a small "Hindi translation is a draft" note shows in the header when Hindi is selected. **Open item before launch: Hindi review by a fluent speaker** (PROGRESS).
+- **Fonts (default, not asked):** Plex Sans Devanagari is added as the fallback after Plex Serif and Plex Mono, so Hindi headings and numbers use it.
+

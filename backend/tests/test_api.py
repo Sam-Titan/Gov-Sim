@@ -132,6 +132,7 @@ def test_report(client) -> None:
     r = client.get("/api/report").json()
     assert r["agent_model_beats_gbm"] is False
     assert isinstance(r["baseline_partial_rows"], int)
+    assert len(r["generated"]) == 10 and r["generated"][4] == "-"
     assert r["sampling_band"]["deff"] == {"value": 2.0, "label": "assumed by team"}
     assert "estimated" in r["sampling_band"]["n_used"]["jsy"]
 

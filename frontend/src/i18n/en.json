@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "GovSim",
-    "tagline": "Test a welfare scheme before launch"
+    "tagline": "Test a welfare scheme before launch",
+    "hindiDraft": "Hindi translation is a draft"
   },
   "health": {
     "checking": "Checking the server…",
@@ -93,7 +94,31 @@
     "speed": "Speed of benefit",
     "target_group": "Target group",
     "up": "raises uptake by {{pp}} pp",
-    "down": "lowers uptake by {{pp}} pp"
+    "down": "lowers uptake by {{pp}} pp",
+    "effectUp": "raises uptake by {{pp}} pp",
+    "effectDown": "lowers uptake by {{pp}} pp",
+    "change": {
+      "benefit": {
+        "more": "Raising the benefit",
+        "less": "Cutting the benefit"
+      },
+      "documents": {
+        "more": "Asking for more documents",
+        "less": "Asking for fewer documents"
+      },
+      "bank_account": {
+        "added": "Adding the bank account requirement",
+        "removed": "Removing the bank account requirement"
+      },
+      "burden": {
+        "more": "Making the application harder",
+        "less": "Making the application easier"
+      },
+      "speed": {
+        "more": "Making the benefit faster",
+        "less": "Making the benefit slower"
+      }
+    }
   },
   "warning": {
     "survey_estimate": "Based on a household survey (NFHS), not official sign-up counts. District values carry sampling error and cover more than this scheme alone.",
@@ -321,5 +346,60 @@
       "boundaries": "District boundaries are approximate and not authoritative.",
       "model": "Effects of the sliders are model assumptions with weakly estimated weights, not measured results."
     }
+  },
+  "download": {
+    "csv": "Download CSV",
+    "csvState": "Download state table (CSV)",
+    "print": "Print / Save as PDF",
+    "simulateFile": "govsim-result",
+    "stateFile": "govsim-state",
+    "compareFile": "govsim-compare",
+    "yes": "Yes",
+    "no": "No",
+    "modelNote": "District level is NFHS survey data; the change from the real settings is a model assumption, not data.",
+    "differenceRow": "B minus A",
+    "col": {
+      "side": "Side",
+      "state": "State",
+      "district": "District",
+      "districtId": "District id",
+      "scheme": "Scheme",
+      "metric": "Metric",
+      "custom": "Custom policy",
+      "policyName": "Policy name",
+      "groupShare": "Target group share of base (%)",
+      "groupCount": "Target group size (estimated)",
+      "used": "{{name}} (used)",
+      "real": "{{name}} (real)",
+      "level": "NFHS-5 level (%)",
+      "changeWeak": "Model change, weak (pp)",
+      "changeCentral": "Model change, central (pp)",
+      "changeStrong": "Model change, strong (pp)",
+      "low": "Low (%)",
+      "middle": "Middle (%)",
+      "high": "High (%)",
+      "reachPoint": "People reached, middle (estimated)",
+      "reachLow": "People reached, low (estimated)",
+      "reachHigh": "People reached, high (estimated)",
+      "hasData": "Has data",
+      "reason": "Reason (no data)",
+      "warnings": "Warnings",
+      "note": "Model note",
+      "reasons": "What moves the result most",
+      "link": "Scenario link",
+      "date": "Date",
+      "version": "Model and data version",
+      "group": "Target group: {{trait}}"
+    },
+    "scenarioLink": "Scenario link",
+    "date": "Date",
+    "modelVersion": "Model and data version (report generated)"
+  },
+  "print": {
+    "title": "GovSim: scenario summary",
+    "settings": "Settings used (real value in brackets)",
+    "sources": "Sources: NFHS-5 and NFHS-4 district fact sheets (IIPS and MoHFW, via The DHS Program); Census of India 2011. See the About page for all sources and licences.",
+    "sideA": "Policy A",
+    "sideB": "Policy B"
   }
 }
