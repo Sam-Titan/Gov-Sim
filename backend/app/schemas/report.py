@@ -13,6 +13,7 @@ class ReportResponse(BaseModel):
     n_districts: int
     n_rows: int
     n_agents: int
+    baseline_partial_rows: int  # rows whose PM-JAY / PMUY baseline is a state value
     losto_headline: dict[str, Any]
     loso: dict[str, Any]
     loso_note: str

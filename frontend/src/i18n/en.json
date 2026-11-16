@@ -43,12 +43,14 @@
   "metric": {
     "households": "Share of all households",
     "births": "Share of all births (last 5 years)",
-    "people": "Share of all people"
+    "people": "Share of all people",
+    "group": "Uptake within the target group (% of the group, not of everyone)"
   },
   "noDataReason": {
     "unmapped": "This district was created after the 2011 Census and has no 2011 parent in our data.",
     "no_state_income": "No state income value is available for this district.",
-    "no_nfhs_sheet": "No NFHS-5 district fact sheet was found for this district."
+    "no_nfhs_sheet": "No NFHS-5 district fact sheet was found for this district.",
+    "group_too_small": "The target group is too small in this district to model."
   },
   "sliders": {
     "title": "Scheme settings",
@@ -80,7 +82,8 @@
     "updating": "Updating…",
     "error": "Could not get a result. Try again.",
     "noData": "No result for this district.",
-    "invalid": "These settings are not allowed for this scheme."
+    "invalid": "These settings are not allowed for this scheme.",
+    "fromDataGroup": "Start scheme, all eligible (NFHS-5): {{level}}%"
   },
   "reason": {
     "benefit": "Benefit value",
@@ -111,6 +114,210 @@
     "credit": "District map: SHRUG v2.1 (Development Data Lab), CC BY-NC-SA 4.0. Boundaries as in Census 2011.",
     "hint": "Click a state or district to select it.",
     "aria": "Map of districts",
-    "note": "District boundaries are approximate and not authoritative."
+    "note": "District boundaries are approximate and not authoritative.",
+    "legendTitleGroup": "Middle value (% of the target group) — see the range in the panel"
+  },
+  "nav": {
+    "label": "Main menu",
+    "simulator": "Simulator",
+    "compare": "Compare",
+    "report": "Model report",
+    "about": "About and data"
+  },
+  "custom": {
+    "toggle": "Custom policy",
+    "title": "Custom policy",
+    "name": "Policy name",
+    "namePlaceholder": "For example: Women 60+ first",
+    "startFrom": "Start from scheme",
+    "unnamed": "Custom policy",
+    "badge": "New policy",
+    "groupTitle": "Who is the policy for?",
+    "groupHelp": "Leave a line on “Anyone” to not filter on it.",
+    "any": "Anyone",
+    "trait": {
+      "age_60_plus": "Age",
+      "female": "Gender",
+      "disabled": "Disability",
+      "rural": "Area",
+      "unbanked": "Bank account"
+    },
+    "age": {
+      "yes": "60 or older",
+      "no": "Under 60"
+    },
+    "gender": {
+      "yes": "Women",
+      "no": "Men"
+    },
+    "disabled": {
+      "yes": "With a disability",
+      "no": "Without a disability"
+    },
+    "area": {
+      "yes": "Rural",
+      "no": "Urban"
+    },
+    "bank": {
+      "yes": "Without a bank account",
+      "no": "With a bank account"
+    },
+    "unbankedNote": "The bank account share is a state value, the same for every district of the state."
+  },
+  "reach": {
+    "title": "Estimated number reached",
+    "value": "About {{point}} {{unit}} (range {{low}} to {{high}})",
+    "group": "Target group: {{share}}% of {{base}} {{unit}}, about {{members}}.",
+    "note": "Estimated, Census 2011 base. This is not a share of all {{unit}}.",
+    "unit": {
+      "households": "households",
+      "births": "births",
+      "people": "people"
+    }
+  },
+  "compare": {
+    "title": "Compare two settings",
+    "intro": "Same district, two settings. The difference is B minus A.",
+    "setting_a": "Setting A",
+    "setting_b": "Setting B",
+    "result_a": "Result A",
+    "result_b": "Result B",
+    "empty": "Choose a state and a district to compare two settings.",
+    "diffTitle": "Difference (B minus A)",
+    "diffRange": "{{low}} to {{high}} pp",
+    "diffMiddle": "Middle value: {{point}} pp",
+    "diffNote": "Both settings share the same NFHS value and sampling error, so only the model's effect of the sliders differs. The range covers the weak, central and strong model sets.",
+    "diffOtherScheme": "No difference is shown: A and B are different schemes, which measure different things.",
+    "diffOtherBase": "No difference is shown: a custom policy is measured within its target group, a real scheme across everyone. They cannot be compared."
+  },
+  "report": {
+    "title": "Model report",
+    "intro": "How accurate the model is, what it assumes, and where it is weak. Every number comes from the latest training run.",
+    "loadError": "Could not load the report.",
+    "beats": "The agent model beats the baseline.",
+    "notBeats": "The agent model does not beat the simple baseline (GBM).",
+    "role": "So district levels come from NFHS data. The agent model is used only for how much a slider change moves the result.",
+    "dataTitle": "Data overview",
+    "districts": "Districts in training",
+    "rows": "Training rows",
+    "agents": "Agents per district",
+    "partialRows": "Rows with a state-level baseline",
+    "noDataDistricts": "Districts without a result (of all listed)",
+    "accTitle": "Accuracy",
+    "accIntro": "Mean absolute error in percentage points on held-out NFHS-5 values. Lower is better.",
+    "test": "Test",
+    "agent": "Agent model",
+    "gbm": "Baseline (GBM)",
+    "naive": "Training mean",
+    "maeAxis": "Error (pp)",
+    "losto": "Leave one state out (headline)",
+    "wins": "The agent model is better than the baseline in {{wins}} of {{folds}} states.",
+    "perState": "Error by state",
+    "state": "State",
+    "nRows": "Rows",
+    "losoTitle": "Leave one scheme out",
+    "losoNote": "Only {{schemes}} schemes, so this test is weak: a held-out scheme has slider values never seen in training.",
+    "mean": "Weighted mean",
+    "betaTitle": "Model weights (β)",
+    "betaIntro": "b2 benefit value relative to income, b3 documents (illiterate), b5 application burden, b6 speed, b8 bank account (fixed, assumed by team); b0 baseline, b7 district deprivation, era_shift NFHS-4 to NFHS-5 (fitted).",
+    "term": "Term",
+    "source": "Source",
+    "fixed": "Fixed, assumed by team",
+    "fitted": "Fitted to data",
+    "set": {
+      "weak": "Weak",
+      "central": "Central",
+      "strong": "Strong"
+    },
+    "setShort": {
+      "weak": "weak",
+      "central": "central",
+      "strong": "strong"
+    },
+    "recTitle": "Can the fitting find known values?",
+    "recIntro": "Data was simulated with known values, then the fit was run again. The error should be small.",
+    "noise": "Noise (pp)",
+    "true": "True",
+    "est": "Found",
+    "err": "Error",
+    "bandTitle": "Sampling band (survey error)",
+    "deff": "Design effect: {{value}} ({{label}})",
+    "bandMedian": "Median half-width (pp)",
+    "bandMax": "Largest half-width (pp)",
+    "bandWide": "Wider than 30 pp",
+    "gbmBand": "Baseline error band (10th / 90th)",
+    "bandNote": "The range on the Simulator adds this survey error to the spread of the three model sets.",
+    "sanityTitle": "What one change does (percentage points)",
+    "sanityIntro": "Median district, anchored at its real NFHS-5 value. Each cell: weak / central / strong.",
+    "change": "Change",
+    "alreadyRequired": "already required",
+    "sanity": {
+      "+1 document": "One more document",
+      "+1 burden": "Burden +1",
+      "+1 speed": "Speed +1",
+      "double benefit": "Double the benefit",
+      "add bank requirement": "Require a bank account"
+    },
+    "weakTitle": "Known weaknesses",
+    "weak": {
+      "agentNotBetter": "The agent model is less accurate than the baseline for district levels ({{agent}} vs {{gbm}} pp error), and better in only {{wins}} of {{folds}} states.",
+      "loso": "The leave-one-scheme-out test has only {{schemes}} schemes, so it says little.",
+      "fixedBetas": "The weights for benefit value, documents, bank account, burden and speed are assumed by the team, not estimated from data. The range covers three sets (weak, central, strong).",
+      "deff": "The survey design effect is {{deff}}, {{label}}. The NFHS sheets do not print it.",
+      "jsyBirths": "The JSY survey band uses estimated births (women interviewed times a 2011 Census ratio), not a printed count. Half-width: median ±{{median}} pp, largest ±{{max}} pp.",
+      "jsyBirthsNoNumbers": "The JSY survey band uses estimated births, not a printed count.",
+      "partial": "{{n}} training rows use a state-level baseline instead of a district value.",
+      "noData": "{{n}} of {{total}} listed districts have no result; {{unmapped}} of them are new districts with no 2011 parent.",
+      "noDataLoading": "The count of districts without a result is loading.",
+      "survey": "Results are survey estimates (NFHS), not official sign-up counts.",
+      "boundaries": "District boundaries are approximate and not authoritative."
+    }
+  },
+  "about": {
+    "title": "About and data",
+    "disclaimer": "A planning aid, not a guarantee.",
+    "whatTitle": "What this is",
+    "what": "GovSim lets officials test a welfare scheme before launch. Pick a district and a scheme, move the sliders, and see the expected uptake as a range. The district level comes from survey data; the model only estimates how much a change moves it.",
+    "sourcesTitle": "Data sources and licences",
+    "licence": "Licence",
+    "source": {
+      "nfhs": {
+        "name": "NFHS-5 and NFHS-4 district fact sheets",
+        "credit": "International Institute for Population Sciences (IIPS) and Ministry of Health and Family Welfare, Government of India. Obtained from The DHS Program (dhsprogram.com).",
+        "licence": "Government of India public report. No licence text on the page."
+      },
+      "census": {
+        "name": "Census of India 2011",
+        "credit": "Office of the Registrar General and Census Commissioner, India (censusindia.gov.in): Primary Census Abstract, tables C-20 (disability) and C-13 (age).",
+        "licence": "Not stated."
+      },
+      "income": {
+        "name": "State income",
+        "credit": "Economic Survey 2023-24, table 1.11A (Ministry of Finance), per-capita state income 2021-22.",
+        "licence": "Government of India public report. No licence text."
+      },
+      "map": {
+        "name": "District map",
+        "credit": "SHRUG v2.1 open district polygons, Development Data Lab.",
+        "licence": "CC BY-NC-SA 4.0 (non-commercial, share-alike)."
+      }
+    },
+    "mapCredit": "District map: SHRUG v2.1 (Development Data Lab), CC BY-NC-SA 4.0. Boundaries as in Census 2011. District boundaries are approximate and not authoritative.",
+    "missingTitle": "Districts without data",
+    "missing": {
+      "chandigarh": "Chandigarh: skipped, no NFHS-5 district sheet used.",
+      "vidisha": "Vidisha (Madhya Pradesh): no NFHS-5 district sheet found.",
+      "lakshadweep": "Lakshadweep: no NFHS-5 district sheet found.",
+      "counts": "In all, {{n}} of {{total}} listed districts have no result; {{unmapped}} of them are new districts that could not be matched to a 2011 Census district."
+    },
+    "limitsTitle": "Limits",
+    "limit": {
+      "survey": "Values are survey estimates with sampling error, not official sign-up counts.",
+      "range": "Always plan with the range, not the middle value.",
+      "proxy": "Each scheme is measured by a survey proxy (for example, clean cooking fuel for PMUY), which covers more than the scheme alone.",
+      "census": "Population bases are from the 2011 Census and are more than ten years old.",
+      "boundaries": "District boundaries are approximate and not authoritative.",
+      "model": "Effects of the sliders are model assumptions with weakly estimated weights, not measured results."
+    }
   }
 }

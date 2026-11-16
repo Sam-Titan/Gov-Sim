@@ -46,9 +46,8 @@ def sampling_band(
 ) -> tuple[np.ndarray, np.ndarray]:
     """10th and 90th percentile offsets (pp) of the NFHS sampling error.
 
-    SE = sqrt(deff * p * (1 - p) / n), n = households (PM-JAY, PMUY, SBM) or women
-    interviewed (JSY, an upper bound on births, so JSY is understated). Symmetric, so the
-    offsets are -Z80*SE and +Z80*SE.
+    SE = sqrt(deff * p * (1 - p) / n), n = households (PM-JAY, PMUY, SBM) or estimated
+    births (JSY, D-042). Symmetric, so the offsets are -Z80*SE and +Z80*SE.
     """
     p = np.clip(level_pp / 100.0, 0.0, 1.0)
     half = 100.0 * Z80 * np.sqrt(deff * p * (1.0 - p) / n)

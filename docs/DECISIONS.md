@@ -303,3 +303,18 @@ Decided by Sam.
 - **Boundary:** keep the map as it is, with the note "District boundaries are approximate and not authoritative". No Survey of India overlay in V1. (Check results: PROGRESS "Phase 4 boundary check".)
 - **Polygon `000`** (unnamed, Gilgit-Baltistan / Aksai Chin region) is always drawn in the "no data" grey, is not clickable, and has a state-edge outline, so India's outline has no gap.
 - **Light tokens** from the demo bulletin added (surface-2 `#edece6`, ink-muted `#55575f`, ink-faint `#85868d`, line-strong `#c7c5b8`, accent-soft `#e4ecf6`, stamp-soft `#f7e3e0`); SPEC §9 updated.
+
+## D-050 — Compare difference is min/max of (B − A) across the beta sets (2026-11-16)
+Decided by Sam. Before, `/compare` returned `B.low − A.low` and `B.high − A.high` (range minus range), which counted the shared NFHS sampling band twice.
+- For the same district and the same real scheme, the NFHS level and the sampling band are shared, so they cancel. Difference = min / max / central of (B − A) across the weak / central / strong sets. For real schemes the clipping to 0-100 is applied before subtracting; for custom policies the change is already in group uptake.
+- `comparable` is true only for the same scheme, the same basis, and the same target group. Different schemes (different indicators) are no longer subtracted.
+- Tests in `backend/tests/test_api.py`.
+
+## D-051 — Phase 5 choices (2026-11-16)
+- Packages: `recharts`, `@hookform/resolvers` (approved by Sam).
+- Report page: all numbers from `/report` and `/districts`; JSY band described as estimated births (D-042); `baseline_partial_rows` added to the `/report` response.
+- About page: DHS/IIPS credit for NFHS; Census 2011 licence "Not stated"; Chandigarh, Vidisha, Lakshadweep listed as missing (D-034).
+- Hindi for all new strings is draft (Phase 6 review).
+- **Approved by Sam (2026-11-16):** Compare shows **no difference** for two different schemes (D-050); result reasons that round to 0.0 pp are **hidden** (a term below 0.05 pp is not a reason).
+- Browser check before sign-off (Hindi, light mode, 390 px wide): charts without animation, legend text in the ink colour, report tables keep a minimum width and scroll inside their panel, the report's English "assumed by team" label is shown as the translated phrase. Hindi wording unchanged (Phase 6).
+

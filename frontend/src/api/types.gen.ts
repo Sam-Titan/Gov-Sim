@@ -48,7 +48,9 @@ export type CompareResponse = {
 /**
  * Difference
  *
- * B minus A. None when A and B are measured on different bases (all vs target group).
+ * B minus A (D-050): min / max over the weak / central / strong beta sets.
+ *
+ * Not comparable (all None) for different schemes, bases or target groups.
  */
 export type Difference = {
     /**
@@ -259,6 +261,10 @@ export type ReportResponse = {
      * N Agents
      */
     n_agents: number;
+    /**
+     * Baseline Partial Rows
+     */
+    baseline_partial_rows: number;
     /**
      * Losto Headline
      */

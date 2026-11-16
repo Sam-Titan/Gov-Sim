@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import type { SimulateResponse } from "@/api/types.gen";
 import "@/i18n/setup";
 import i18n from "@/i18n/setup";
+import custom from "../../../../shared/mocks/simulate.custom.sample.json";
 import mock from "../../../../shared/mocks/simulate.sample.json";
 import { ResultPanel } from "./ResultPanel";
 
@@ -53,5 +54,32 @@ describe("ResultPanel", () => {
     await i18n.changeLanguage("hi");
     render(<ResultPanel {...base} data={data} />);
     expect(screen.getByText("सभी लोगों में हिस्सा")).toBeTruthy();
+  });
+
+  describe("custom policy (group basis)", () => {
+    const group = custom as unknown as SimulateResponse;
+
+    it("says the number is within the target group and shows the reach", () => {
+      render(<ResultPanel {...base} data={group} />);
+      expect(screen.getByText(/Uptake within the target group/)).toBeTruthy();
+      expect(screen.queryByText("Share of all people")).toBeNull();
+      expect(screen.getByText("New policy")).toBeTruthy();
+      expect(screen.getByText("Mock custom policy", { exact: false })).toBeTruthy();
+      const reach = screen.getByTestId("reach").textContent ?? "";
+      expect(reach).toContain("13,500 people");
+      expect(reach).toContain("8,100");
+      expect(reach).toContain("19,800");
+      expect(reach).toContain("Estimated, Census 2011 base");
+    });
+
+    it("shows no reach block for a real scheme", () => {
+      render(<ResultPanel {...base} data={data} />);
+      expect(screen.queryByTestId("reach")).toBeNull();
+    });
+
+    it("explains a group that is too small", () => {
+      render(<ResultPanel ready updating={false} error="no_data" noDataReason="group_too_small" />);
+      expect(screen.getByRole("alert").textContent).toContain("too small");
+    });
   });
 });

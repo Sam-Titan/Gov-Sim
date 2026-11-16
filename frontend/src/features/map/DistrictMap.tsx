@@ -20,6 +20,8 @@ interface Props {
   rows: StateRow[];
   selected: string | null;
   onPick: (districtId: string) => void;
+  /** Custom policy: colours show uptake within the target group. */
+  group?: boolean;
 }
 
 /** Diagonal stripes, 8x8 px, as raw RGBA. */
@@ -177,7 +179,7 @@ export function DistrictMap(props: Props) {
           </Source>
         </MapGL>
       </div>
-      <Legend colors={colors} />
+      <Legend colors={colors} group={props.group} />
       <p className="text-xs opacity-80">{t("map.hint")}</p>
       <p className="text-xs font-semibold">{t("map.note")}</p>
       <p className="text-xs opacity-80">{t("map.credit")}</p>

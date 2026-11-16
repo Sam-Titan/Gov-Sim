@@ -1,12 +1,12 @@
 import { useTranslation } from "react-i18next";
 import { classLabel, type MapColors, SCALE } from "./colors";
 
-export function Legend({ colors }: { colors: MapColors }) {
+export function Legend({ colors, group }: { colors: MapColors; group?: boolean }) {
   const { t } = useTranslation();
   const [r, g, b] = colors.hatch;
   return (
     <div className="grid gap-2 text-xs">
-      <p className="font-semibold">{t("map.legendTitle")}</p>
+      <p className="font-semibold">{t(group ? "map.legendTitleGroup" : "map.legendTitle")}</p>
       <ul className="flex flex-wrap gap-x-3 gap-y-1 font-mono">
         {SCALE.map((c, i) => (
           <li key={c} className="flex items-center gap-1">

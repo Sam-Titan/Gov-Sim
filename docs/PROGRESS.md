@@ -3,7 +3,7 @@
 Update after every task. Newest log entries at the top.
 
 ## Current phase
-**Phase 4 — Simulator page** (signed off 2026-11-16). Next: Phase 5, plan shown to Sam, not started.
+**Phase 5 — Other pages** (done 2026-11-16, browser-checked in Hindi, light mode and at 390 px; waiting for Sam's sign-off). Phase 4 signed off 2026-11-16.
 
 ## Phase status
 | Phase | Status | Sam signed off |
@@ -13,7 +13,7 @@ Update after every task. Newest log entries at the top.
 | 2 Model | ✅ Done | ✅ Sam, 2026-11-15 |
 | 3 Fast model + API | ✅ Done | ✅ Sam, 2026-11-15 |
 | 4 Simulator page | ✅ Done | ✅ Sam, 2026-11-16 |
-| 5 Other pages | ⏳ Not started | — |
+| 5 Other pages | ✅ Done, waiting for sign-off | — |
 | 6 Downloads + Hindi | ⏳ Not started | — |
 | 7 Test + launch | ⏳ Not started | — |
 
@@ -31,6 +31,24 @@ Update after every task. Newest log entries at the top.
 - [x] `data/processed/README.md` (source and licence per file); map has `has_nfhs_data`; DD state name fixed
 - [x] Follow-ups (D-036): `xlrd`, Census C-13 age 60+ (35 xls, 640 districts), drop widows/electricity, beta7 deprivation score, beta2 state income (Economic Survey table 1.11A)
 - [x] **Phase 1 done.** `just check` and `just test` pass. Waiting for Sam's sign-off.
+
+## Phase 5 tasks
+- [x] Packages (approved): `recharts` 3.10.1, `@hookform/resolvers` 7.0.6
+- [x] Menu and routes `/compare`, `/report`, `/about`
+- [x] Custom policy builder in the Simulator (name, start scheme, target group, react-hook-form + zod); scenario in the URL (`custom`, `name`, group flags); result says "within the target group", shows estimated reach (Census 2011 base) and the New policy badge; `group_too_small` message; map legend says "% of the target group"
+- [x] Compare page: A and B for one district (own scheme, custom policy and sliders each), results side by side, B minus A as a range; "no difference shown" for different schemes or bases
+- [x] **Compare backend fix (D-050):** difference range = min/max of (B − A) across weak/central/strong sets, not range minus range; comparable only for same scheme, basis and target group. 5 new backend tests
+- [x] Report page: every number from `/report` (zod-checked) and `/districts`; accuracy tables and charts, β table, recovery, sampling band, sanity table, known weaknesses (JSY = estimated births, 81 districts without data of which 70 unmapped, from `/districts`). `baseline_partial_rows` added to the `/report` response
+- [x] About page: sources and licences, DHS/IIPS credit, Census licence "Not stated", Chandigarh, Vidisha, Lakshadweep missing (D-034), limits, disclaimer
+- [x] EN + draft HI strings (key parity test passes); stale "understated" comment fixed in `hybrid.py`
+- [x] 83 backend + 50 frontend tests, `just check` and `just test` pass; checked in a browser (Report, custom policy on Araria PMUY, Compare)
+
+## Phase 5 notes for Sam
+- Approved by Sam and logged (D-050 note): Compare shows **no difference** for two different schemes; result reasons that round to 0.0 pp are hidden.
+- Report page shows model-term codes (b2, b7 …) with a one-line legend, not names.
+- **Browser check done** (Playwright; Hindi + light mode; Compare, Report, About, custom policy builder; 390 px wide, no sideways page scroll on any page). Fixed: chart animation (bars looked empty at first), legend contrast, noise label "1.0 pp", the report's English "assumed by team" shown inside Hindi text, tables keep a minimum width and scroll inside their panel. Hindi wording not changed.
+- Left for Phase 6: Devanagari numbers in mono text and serif headings use the browser's fallback font (Plex Mono / Plex Serif have no Devanagari); Sam reviews the Hindi.
+- Not done on purpose: CSV, print/PDF (Phase 6), Playwright e2e (Phase 7).
 
 ## Phase 4 tasks
 - [x] Packages (approved, D-047): `maplibre-gl` 6.18.0, `react-map-gl` 8.1.3, `@radix-ui/react-slider` 1.6.1, `@radix-ui/react-switch` 1.4.1 (the two Radix packages are what the shadcn slider and switch need; select and tooltip are not used)
@@ -149,7 +167,7 @@ One oddity: PMUY +1 document is -0.30 (central) and -0.25 (strong): the sets are
 Suggested commit message: `Phase 2 model: hybrid output (NFHS level + anchored agent-model change), fixed assumed betas, sampling bands, LOSTO/LOSO report`
 
 ## Waiting on Sam
-- Approval of the Phase 5 plan (shown in chat). Phase 5 has not started.
+- Phase 5 sign-off.
 - Notes carried forward: deff 2.0 is an assumption; JSY n is an estimate (2011 ratio); documents effect not used.
 
 ## Blockers
@@ -210,6 +228,8 @@ D-033 V1 uses 634 mapped districts; D-034 Vidisha and Lakshadweep missing; D-035
 - Phase 1 sign-off only. Open note for Phase 2: Ladakh and Dadra & Nagar Haveli and Daman & Diu (5 districts) have no state income value.
 
 ## Log
+- 2026-11-16 — Phase 5 browser-checked (Hindi, light, mobile), layout fixes, Sam's two choices logged. Phase 5 done; stopped for sign-off.
+- 2026-11-16 — Phase 5 built (D-050, D-051). Custom policy builder, Compare, Report, About; Compare difference fixed in the backend; EN + draft HI. 83 backend + 50 frontend tests, `just check` and `just test` pass. Stopped for Phase 5 sign-off. Suggested commit message: `Phase 5: custom policy builder, Compare, model report and About pages; Compare difference as min/max across beta sets`
 - 2026-11-16 — Phase 4 signed off by Sam. Last changes (D-049): boundary kept as is, polygon `000` fixed (grey, not clickable, outlined), light tokens added to CSS and SPEC §9. 26 frontend tests, `just check` and `just test` pass. Stopped; Phase 5 plan shown, not started.
 - 2026-11-16 — Phase 4 changes before sign-off (D-048): state outlines by current state (36, Telangana and Ladakh own), demo dark tokens (SPEC §9), language saved in localStorage, map note EN + HI draft, boundary check reported (no change). Suggested commit message unchanged.
 - 2026-11-16 — Phase 4 built (D-047). Simulator page: shell, wake-up screen, pickers, sliders, result panel, MapLibre map (state outlines, hatch, colourblind-safe scale), scenario in URL, EN + draft HI. Query options for the POST routes. New `states.geojson`. 24 frontend tests, `just check` and `just test` pass; checked in a browser incl. production build. Stopped for Phase 4 sign-off. Suggested commit message: `Phase 4: simulator page with district map, sliders, result range, URL scenario, EN/HI`

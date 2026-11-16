@@ -14,6 +14,8 @@ SBM = {
     "benefit_immediacy": 2,
 }
 
+PMUY_EASY = {**SBM, "cash_benefit_inr": 3000, "application_burden": 1}
+
 
 @pytest.fixture(scope="module")
 def client():
@@ -128,6 +130,7 @@ def test_compare_difference(client, bihar) -> None:
 def test_report(client) -> None:
     r = client.get("/api/report").json()
     assert r["agent_model_beats_gbm"] is False
+    assert isinstance(r["baseline_partial_rows"], int)
     assert r["sampling_band"]["deff"] == {"value": 2.0, "label": "assumed by team"}
     assert "estimated" in r["sampling_band"]["n_used"]["jsy"]
 
@@ -216,3 +219,63 @@ def test_state_custom_marks_small_groups(client) -> None:
 def test_districts_show_current_state_for_warangal(client) -> None:
     tg = client.get("/api/districts", params={"state": "Telangana"}).json()
     assert "Warangal" in {p["name"] for p in tg}
+
+
+def test_compare_range_is_min_max_of_set_differences(client, bihar) -> None:
+    """D-050: same district and scheme share the NFHS level and band, so they cancel."""
+    did = bihar[0]["id"]
+    body = {"district_id": did, "a": {"scheme": "sbm"}, "b": {"scheme": "sbm", "inputs": SBM}}
+    r = client.post("/api/compare", json=body).json()
+    ca, cb = r["a"]["result"]["changes"], r["b"]["result"]["changes"]
+    gaps = [cb[k] - ca[k] for k in ("weak", "central", "strong")]
+    d = r["difference"]
+    assert d["comparable"] is True
+    assert d["low"] == pytest.approx(min(gaps), abs=0.02)
+    assert d["high"] == pytest.approx(max(gaps), abs=0.02)
+    assert d["point"] == pytest.approx(gaps[1], abs=0.02)
+    assert d["low"] <= d["point"] <= d["high"]
+
+
+def test_compare_swapped_flips_sign(client, bihar) -> None:
+    did = bihar[0]["id"]
+    ab = {"district_id": did, "a": {"scheme": "sbm"}, "b": {"scheme": "sbm", "inputs": SBM}}
+    ba = {"district_id": did, "a": ab["b"], "b": ab["a"]}
+    d1 = client.post("/api/compare", json=ab).json()["difference"]
+    d2 = client.post("/api/compare", json=ba).json()["difference"]
+    assert d2["point"] == pytest.approx(-d1["point"], abs=0.02)
+    assert d2["low"] == pytest.approx(-d1["high"], abs=0.02)
+    assert d2["high"] == pytest.approx(-d1["low"], abs=0.02)
+
+
+def test_compare_different_schemes_not_comparable(client, bihar) -> None:
+    did = bihar[0]["id"]
+    body = {"district_id": did, "a": {"scheme": "sbm"}, "b": {"scheme": "pmuy"}}
+    d = client.post("/api/compare", json=body).json()["difference"]
+    assert d["comparable"] is False and d["point"] is None
+
+
+def test_compare_custom_different_groups_not_comparable(client, bihar) -> None:
+    did = bihar[0]["id"]
+    body = {
+        "district_id": did,
+        "a": {"scheme": "pmuy", "target_group": {"female": True}},
+        "b": {"scheme": "pmuy", "target_group": {"rural": True}},
+    }
+    assert client.post("/api/compare", json=body).json()["difference"]["comparable"] is False
+
+
+def test_compare_two_custom_policies_same_group(client, bihar) -> None:
+    did = bihar[0]["id"]
+    group = {"female": True}
+    body = {
+        "district_id": did,
+        "a": {"scheme": "pmuy", "target_group": group},
+        "b": {"scheme": "pmuy", "target_group": group, "inputs": PMUY_EASY},
+    }
+    r = client.post("/api/compare", json=body).json()
+    d = r["difference"]
+    assert d["comparable"] is True
+    assert d["point"] == pytest.approx(
+        r["b"]["result"]["point"] - r["a"]["result"]["point"], abs=0.05
+    )
+    assert d["low"] <= d["point"] <= d["high"]

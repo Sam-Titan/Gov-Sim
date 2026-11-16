@@ -18,9 +18,11 @@ interface Props {
   scheme: SchemeOut;
   overrides: Overrides;
   onChange: (overrides: Overrides) => void;
+  /** Keeps element ids unique when two sets of sliders share a page (Compare). */
+  idPrefix?: string;
 }
 
-export function Sliders({ scheme, overrides, onChange }: Props) {
+export function Sliders({ scheme, overrides, onChange, idPrefix = "" }: Props) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const [draft, setDraft] = useState<Overrides>(overrides);
@@ -52,9 +54,9 @@ export function Sliders({ scheme, overrides, onChange }: Props) {
   const moved = Object.keys(cleanOverrides(draft, scheme.defaults)).length > 0;
 
   return (
-    <section aria-labelledby="sliders-title" className="grid gap-4">
+    <section aria-labelledby={`${idPrefix}sliders-title`} className="grid gap-4">
       <div className="flex items-baseline justify-between">
-        <h2 id="sliders-title" className="font-serif text-lg">
+        <h2 id={`${idPrefix}sliders-title`} className="font-serif text-lg">
           {t("sliders.title")}
         </h2>
         <button
@@ -72,7 +74,7 @@ export function Sliders({ scheme, overrides, onChange }: Props) {
 
       {cashRange && (
         <Row
-          id="cash"
+          id={`${idPrefix}cash`}
           label={t(
             scheme.non_cash ? "sliders.cash_benefit_inr_noncash" : "sliders.cash_benefit_inr",
           )}
@@ -82,7 +84,7 @@ export function Sliders({ scheme, overrides, onChange }: Props) {
           realValue={rupees(scheme.defaults.cash_benefit_inr)}
         >
           <Slider
-            aria-labelledby="cash-label"
+            aria-labelledby={`${idPrefix}cash-label`}
             min={0}
             max={1000}
             step={1}
@@ -113,7 +115,7 @@ export function Sliders({ scheme, overrides, onChange }: Props) {
         return (
           <Row
             key={field}
-            id={field}
+            id={`${idPrefix}${field}`}
             label={t(`sliders.${key}`)}
             shown={plain(value[field])}
             note={real(field, plain)}
@@ -122,7 +124,7 @@ export function Sliders({ scheme, overrides, onChange }: Props) {
             realValue={plain(scheme.defaults[field])}
           >
             <Slider
-              aria-labelledby={`${field}-label`}
+              aria-labelledby={`${idPrefix}${field}-label`}
               min={range.min}
               max={range.max}
               step={1}
@@ -135,7 +137,7 @@ export function Sliders({ scheme, overrides, onChange }: Props) {
 
       <div className="flex items-center justify-between gap-3 text-sm">
         <div>
-          <span id="bank-label" className="font-semibold">
+          <span id={`${idPrefix}bank-label`} className="font-semibold">
             {t("sliders.requires_bank_account")}
           </span>
           {scheme.assumed.includes("requires_bank_account") && (
@@ -147,7 +149,7 @@ export function Sliders({ scheme, overrides, onChange }: Props) {
             {value.requires_bank_account ? t("sliders.yes") : t("sliders.no")}
           </span>
           <Switch
-            aria-labelledby="bank-label"
+            aria-labelledby={`${idPrefix}bank-label`}
             checked={value.requires_bank_account}
             onCheckedChange={(c) => set("requires_bank_account", c)}
           />

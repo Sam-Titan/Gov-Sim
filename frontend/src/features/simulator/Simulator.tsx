@@ -9,6 +9,8 @@ import {
   simulateOptions,
   simulateStateOptions,
 } from "@/api/@tanstack/react-query.gen";
+import { Switch } from "@/components/ui/switch";
+import { CustomPolicy, type PolicyDraft } from "@/features/custom-policy/CustomPolicy";
 import { DistrictMap } from "@/features/map/DistrictMap";
 import { stateIds } from "@/features/map/geo";
 import { useGeo } from "@/features/map/useGeo";
@@ -18,7 +20,7 @@ import {
   parseScenario,
   type Scenario,
   serializeScenario,
-  toInputs,
+  toSetting,
 } from "@/lib/scenario";
 import { isDark, useUi } from "@/store/ui";
 import { Pickers } from "./Pickers";
@@ -35,6 +37,13 @@ function errorKind(e: unknown): ResultError | null {
   return "other";
 }
 
+function errorReason(e: unknown): string | null {
+  if (typeof e === "object" && e !== null && "reason" in e && typeof e.reason === "string") {
+    return e.reason;
+  }
+  return null;
+}
+
 export function Simulator() {
   const { t } = useTranslation();
   const theme = useUi((s) => s.theme);
@@ -48,19 +57,19 @@ export function Simulator() {
 
   const scheme = schemes.data?.find((s) => s.code === sc.scheme) ?? schemes.data?.[0];
   const place = districts.data?.find((d) => d.id === sc.district);
-  const inputs = scheme ? toInputs(sc.overrides, scheme.defaults) : undefined;
+  const setting = scheme ? toSetting(sc, scheme.defaults) : { scheme: sc.scheme };
   const canRun = Boolean(scheme && sc.district && place?.has_data);
 
   const sim = useQuery({
     ...simulateOptions({
-      body: { scheme: sc.scheme, inputs, district_id: sc.district ?? "" },
+      body: { ...setting, district_id: sc.district ?? "" },
     }),
     enabled: canRun,
     placeholderData: keepPreviousData,
     retry: false,
   });
   const stateSim = useQuery({
-    ...simulateStateOptions({ body: { scheme: sc.scheme, inputs, state: sc.state ?? "" } }),
+    ...simulateStateOptions({ body: { ...setting, state: sc.state ?? "" } }),
     enabled: Boolean(scheme && sc.state),
     placeholderData: keepPreviousData,
     retry: false,
@@ -74,6 +83,7 @@ export function Simulator() {
     [setParams],
   );
   const setOverrides = useCallback((overrides: Overrides) => update({ overrides }), [update]);
+  const setDraft = useCallback((d: PolicyDraft) => update(d), [update]);
 
   const pickFromMap = (id: string) => {
     const d = districts.data?.find((x) => x.id === id);
@@ -86,6 +96,7 @@ export function Simulator() {
   const loadError = states.isError || districts.isError || schemes.isError;
   const ready = canRun;
   const showError = !canRun && place && !place.has_data ? "no_data" : errorKind(sim.error);
+  const noDataReason = errorReason(sim.error) ?? place?.reason;
 
   return (
     <div className="mx-auto grid max-w-7xl gap-6 p-4 lg:grid-cols-[22rem_1fr]">
@@ -103,6 +114,7 @@ export function Simulator() {
             state={sc.state}
             district={sc.district}
             scheme={scheme?.code ?? DEFAULT_SCHEME}
+            custom={sc.custom}
             onState={(state) => update({ state, district: null })}
             onDistrict={(district) => update({ district })}
             onScheme={(code) => update({ scheme: code, overrides: {} })}
@@ -110,6 +122,17 @@ export function Simulator() {
         ) : (
           !loadError && <p role="status">{t("picker.loading")}</p>
         )}
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <span id="custom-toggle-label" className="font-semibold">
+            {t("custom.toggle")}
+          </span>
+          <Switch
+            aria-labelledby="custom-toggle-label"
+            checked={sc.custom}
+            onCheckedChange={(custom) => update({ custom })}
+          />
+        </div>
+        {sc.custom && <CustomPolicy name={sc.name} group={sc.group} onChange={setDraft} />}
         {scheme && (
           <Sliders
             key={scheme.code}
@@ -126,7 +149,7 @@ export function Simulator() {
           data={ready ? sim.data : undefined}
           updating={sim.isFetching && sim.isPlaceholderData}
           error={showError}
-          noDataReason={place?.reason}
+          noDataReason={noDataReason}
         />
         {geo.data ? (
           <DistrictMap
@@ -137,6 +160,7 @@ export function Simulator() {
             rows={stateSim.data?.districts ?? []}
             selected={sc.district}
             onPick={pickFromMap}
+            group={sc.custom}
           />
         ) : (
           <p role={geo.isError ? "alert" : "status"}>

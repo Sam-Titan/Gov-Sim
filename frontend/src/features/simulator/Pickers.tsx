@@ -14,6 +14,8 @@ interface Props {
   onState: (s: string | null) => void;
   onDistrict: (id: string | null) => void;
   onScheme: (code: string) => void;
+  custom?: boolean;
+  hideScheme?: boolean;
 }
 
 export function Pickers(p: Props) {
@@ -53,16 +55,41 @@ export function Pickers(p: Props) {
           ))}
         </select>
       </label>
-      <label className="grid gap-1 text-sm">
-        <span className="font-semibold">{t("picker.scheme")}</span>
-        <select className={SELECT} value={p.scheme} onChange={(e) => p.onScheme(e.target.value)}>
-          {p.schemes.map((s) => (
-            <option key={s.code} value={s.code}>
-              {t(`scheme.${s.code}`, { defaultValue: s.name })}
-            </option>
-          ))}
-        </select>
-      </label>
+      {!p.hideScheme && (
+        <SchemePicker
+          schemes={p.schemes}
+          value={p.scheme}
+          custom={p.custom}
+          onChange={p.onScheme}
+        />
+      )}
     </div>
+  );
+}
+
+export function SchemePicker(p: {
+  schemes: SchemeOut[];
+  value: string;
+  custom?: boolean;
+  onChange: (code: string) => void;
+  id?: string;
+}) {
+  const { t } = useTranslation();
+  return (
+    <label className="grid gap-1 text-sm">
+      <span className="font-semibold">{t(p.custom ? "custom.startFrom" : "picker.scheme")}</span>
+      <select
+        id={p.id}
+        className={SELECT}
+        value={p.value}
+        onChange={(e) => p.onChange(e.target.value)}
+      >
+        {p.schemes.map((s) => (
+          <option key={s.code} value={s.code}>
+            {t(`scheme.${s.code}`, { defaultValue: s.name })}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }

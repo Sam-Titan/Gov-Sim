@@ -179,15 +179,43 @@ def simulate_state(req: StateSimulateRequest, svc: Svc) -> StateSimulateResponse
     )
 
 
+def _clip(v: float) -> float:
+    return min(100.0, max(0.0, v))
+
+
+def _difference(a: SimulateResponse, b: SimulateResponse, same_group: bool) -> Difference:
+    """B minus A (D-050).
+
+    Comparable only for the same real scheme and the same basis (and the same target
+    group for custom policies). Then the NFHS level and the sampling band are shared, so
+    they cancel: the range is the min / max of (B - A) across the weak / central / strong
+    beta sets, not the range of B minus the range of A.
+    """
+    ra, rb = a.result, b.result
+    same = a.scheme == b.scheme and ra.basis == rb.basis and same_group and ra.level == rb.level
+    if not same:
+        return Difference(comparable=False, point=None, low=None, high=None)
+    ca, cb = ra.changes, rb.changes
+    # Real schemes: level + change, kept inside 0-100 like the result. Custom policies:
+    # the change is already measured in group uptake (same group, same real settings).
+    gaps = [
+        _clip(rb.level + y) - _clip(ra.level + x) if ra.basis == "all" else y - x
+        for x, y in ((ca.weak, cb.weak), (ca.central, cb.central), (ca.strong, cb.strong))
+    ]
+    return Difference(
+        comparable=True,
+        point=round(gaps[1], 2),
+        low=round(min(gaps), 2),
+        high=round(max(gaps), 2),
+    )
+
+
 @router.post("/compare", response_model=CompareResponse, operation_id="compare", responses=ERRORS)
 def compare(req: CompareRequest, svc: Svc) -> CompareResponse:
     a = simulate_one(svc, req.district_id, req.a)
     b = simulate_one(svc, req.district_id, req.b)
-    same = a.result.basis == b.result.basis
-    diff = Difference(
-        comparable=same,
-        point=round(b.result.point - a.result.point, 2) if same else None,
-        low=round(b.result.low - a.result.low, 2) if same else None,
-        high=round(b.result.high - a.result.high, 2) if same else None,
+    return CompareResponse(
+        a=a,
+        b=b,
+        difference=_difference(a, b, req.a.target_group == req.b.target_group),
     )
-    return CompareResponse(a=a, b=b, difference=diff)

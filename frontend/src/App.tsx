@@ -2,11 +2,21 @@ import { useQuery } from "@tanstack/react-query";
 import { Moon, Sun, SunMoon } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Route, Routes } from "react-router-dom";
+import { NavLink, Route, Routes } from "react-router-dom";
 import { getHealthOptions } from "./api/@tanstack/react-query.gen";
+import { About } from "./features/about/About";
+import { Compare } from "./features/compare/Compare";
+import { Report } from "./features/report/Report";
 import { Simulator } from "./features/simulator/Simulator";
 import { WakeUp } from "./features/simulator/WakeUp";
 import { applyTheme, type Theme, useUi } from "./store/ui";
+
+const NAV = [
+  ["/", "nav.simulator"],
+  ["/compare", "nav.compare"],
+  ["/report", "nav.report"],
+  ["/about", "nav.about"],
+] as const;
 
 const THEMES: Theme[] = ["system", "light", "dark"];
 const ICON = { system: SunMoon, light: Sun, dark: Moon } as const;
@@ -49,6 +59,20 @@ function Header() {
           </button>
         </div>
       </div>
+      <nav aria-label={t("nav.label")} className="mx-auto flex max-w-7xl gap-4 px-4 pb-2 text-sm">
+        {NAV.map(([to, key]) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={to === "/"}
+            className={({ isActive }) =>
+              `border-b-2 py-1 ${isActive ? "border-accent font-semibold" : "border-transparent"}`
+            }
+          >
+            {t(key)}
+          </NavLink>
+        ))}
+      </nav>
     </header>
   );
 }
@@ -81,6 +105,9 @@ export default function App() {
       {health.data ? (
         <Routes>
           <Route path="/" element={<Simulator />} />
+          <Route path="/compare" element={<Compare />} />
+          <Route path="/report" element={<Report />} />
+          <Route path="/about" element={<About />} />
         </Routes>
       ) : (
         <WakeUp />
