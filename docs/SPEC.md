@@ -96,7 +96,7 @@ Rules:
     LPG" (the PMUY target) and electricity (overlaps the PMUY target). **Dropped, only 13
     states:** widows (Census C-02, D-036).
   - **Never used as traits (leakage):** the 4 target indicators and their close relatives;
-    full list in `docs/DATA_REPORT.md`. Checked: no trait has |r| above 0.7 with a target.
+    full list in the data report (kept locally, not in the repo). Checked: no trait has |r| above 0.7 with a target.
 - An agent is eligible if it matches the scheme's target group.
 - An eligible agent signs up with probability `sigmoid(z)`, where z uses 8 β values (β4 was removed, D-031):
 
@@ -234,7 +234,7 @@ Hey API — never hand-written.
 - **Frontend:** Vite, React + TypeScript, Tailwind CSS v4 + shadcn/ui + lucide-react, TanStack Query, Zustand, React Router, react-hook-form + zod, Motion + sonner, MapLibre GL (react-map-gl), Recharts, react-i18next
 - **Glue:** Hey API (`@hey-api/openapi-ts`), `shared/mocks/`, `.env`
 - **Quality:** Ruff + ty, Biome, pytest, vitest, Playwright + `@playwright/mcp`, GitHub Actions + Dependabot
-- **Hosting:** Netlify (frontend), Render free plan (backend), Sentry
+- **Hosting:** Netlify (frontend), Render free plan (backend)
 - **Optional (approved, only if time allows):** Lighthouse CI, Locust, PostHog, SlowAPI, Docker + Compose
 - **Not used:** LLM/agent libraries, databases, Redis/queues, auth, 3D tools, Caddy, Orval, PDF libraries
 

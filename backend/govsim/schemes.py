@@ -1,4 +1,4 @@
-"""The four V1 schemes and their slider values. Sources: docs/DECISIONS.md D-037."""
+"""The four V1 schemes and their slider values. Sources: decision D-037 (kept locally)."""
 
 from pydantic import BaseModel
 

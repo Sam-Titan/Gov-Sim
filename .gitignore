@@ -29,3 +29,13 @@ test-results/
 .DS_Store
 .idea/
 .vscode/
+
+# docs (except the spec and the Hindi review table) and Claude Code files
+docs/*
+!docs/SPEC.md
+!docs/HINDI_STRINGS.md
+!docs/CHANGELOG.md
+!docs/DEPLOY.md
+CLAUDE.md
+.claude/
+.playwright-mcp/

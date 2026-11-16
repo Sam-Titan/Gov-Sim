@@ -3,12 +3,12 @@ import { Moon, Sun, SunMoon } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, Route, Routes } from "react-router-dom";
-import { getHealthOptions } from "./api/@tanstack/react-query.gen";
 import { About } from "./features/about/About";
 import { Compare } from "./features/compare/Compare";
 import { Report } from "./features/report/Report";
 import { Simulator } from "./features/simulator/Simulator";
 import { WakeUp } from "./features/simulator/WakeUp";
+import { healthQuery } from "./lib/health";
 import { applyTheme, type Theme, useUi } from "./store/ui";
 
 const NAV = [
@@ -85,11 +85,7 @@ function Header() {
 export default function App() {
   const { i18n } = useTranslation();
   const theme = useUi((s) => s.theme);
-  const health = useQuery({
-    ...getHealthOptions(),
-    refetchInterval: (q) => (q.state.data ? false : 3000),
-    retry: false,
-  });
+  const health = useQuery(healthQuery());
 
   useEffect(() => {
     applyTheme(theme);

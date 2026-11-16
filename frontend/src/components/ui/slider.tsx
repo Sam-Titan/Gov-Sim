@@ -11,7 +11,10 @@ export function Slider({ className, ...props }: ComponentProps<typeof SliderPrim
       <SliderPrimitive.Track className="relative h-1 w-full grow rounded-full bg-line">
         <SliderPrimitive.Range className="absolute h-full rounded-full bg-accent" />
       </SliderPrimitive.Track>
-      <SliderPrimitive.Thumb className="block size-4 rounded-full border-2 border-accent bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" />
+      <SliderPrimitive.Thumb
+        aria-labelledby={props["aria-labelledby"]}
+        className="block size-4 rounded-full border-2 border-accent bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      />
     </SliderPrimitive.Root>
   );
 }

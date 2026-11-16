@@ -158,7 +158,11 @@ export function Simulator() {
         {ready && sim.data && (
           <DownloadBar
             fileKey="download.simulateFile"
-            build={() => (sim.data ? simulateCsv(sim.data, t, i18n.language, meta) : null)}
+            build={() =>
+              sim.data && !sim.isPlaceholderData
+                ? simulateCsv(sim.data, t, i18n.language, meta)
+                : null
+            }
           />
         )}
         <div className="grid gap-6 print:hidden">
@@ -168,7 +172,7 @@ export function Simulator() {
               label="download.csvState"
               print={false}
               build={() =>
-                stateSim.data && scheme
+                stateSim.data && !stateSim.isPlaceholderData && scheme
                   ? stateCsv(
                       stateSim.data,
                       toSetting(sc, scheme.defaults),

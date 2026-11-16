@@ -1,0 +1,23 @@
+# Netlify: build the React app and forward /api to the Render backend.
+# Replace GOVSIM-API with your Render service name (see docs/DEPLOY.md).
+
+[build]
+  command = "pnpm build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+  PNPM_VERSION = "12.11.2"
+
+# /api goes to Render. force = true so it wins over the page fallback below.
+[[redirects]]
+  from = "/api/*"
+  to = "https://GOVSIM-API.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# Pages like /compare and /report open the app (reload and shared links work).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

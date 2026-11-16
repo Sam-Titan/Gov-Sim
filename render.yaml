@@ -1,0 +1,17 @@
+# Render blueprint (optional). Same settings as docs/DEPLOY.md.
+# Root directory is left empty: the repo root is the working directory and the
+# commands cd into backend. The app finds data/processed and backend/artifacts from its own
+# file location.
+services:
+  - type: web
+    name: govsim-api
+    runtime: python
+    plan: free
+    buildCommand: pip install uv && cd backend && uv sync --frozen --no-dev
+    startCommand: cd backend && uv run --no-sync uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.11
+      - key: CORS_ORIGINS
+        sync: false

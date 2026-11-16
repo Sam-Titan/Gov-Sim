@@ -254,7 +254,11 @@ export function Compare() {
           <PrintSummary items={[cmp.data.a, cmp.data.b]} meta={meta} />
           <DownloadBar
             fileKey="download.compareFile"
-            build={() => (cmp.data ? compareCsv(cmp.data, t, i18n.language, meta) : null)}
+            build={() =>
+              cmp.data && !cmp.isPlaceholderData
+                ? compareCsv(cmp.data, t, i18n.language, meta)
+                : null
+            }
           />
           <DifferencePanel data={cmp.data} />
           <div className="grid gap-6 lg:grid-cols-2">

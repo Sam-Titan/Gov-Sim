@@ -2,7 +2,7 @@
 
 Made by `just data` (`backend/scripts/build_data.py`) from `data/raw/`. Safe to commit.
 Source URLs and download dates are in `data/MANIFEST.csv`. Row counts and checks are in
-`docs/DATA_REPORT.md`.
+the data report (kept locally, not in the repo).
 
 | File | What it holds | Source | Licence |
 |---|---|---|---|
