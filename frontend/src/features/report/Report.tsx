@@ -164,7 +164,12 @@ function Weaknesses({
           max: n(jsy.max_half_width_pp, 2),
         })
       : t("report.weak.jsyBirthsNoNumbers"),
-    t("report.weak.nfhsDrop"),
+    t("report.weak.nfhsDrop", {
+      n: n(r.raw.pmjay_nfhs5_not_above_nfhs4.n, 0),
+      of: n(r.raw.pmjay_nfhs5_not_above_nfhs4.of, 0),
+      nOwn: n(r.raw.pmjay_nfhs5_not_above_nfhs4.n_own, 0),
+      ofOwn: n(r.raw.pmjay_nfhs5_not_above_nfhs4.of_own, 0),
+    }),
     t("report.weak.partial", { n: n(r.raw.baseline_partial_rows, 0) }),
     noData && unmapped !== undefined
       ? t("report.weak.noData", {

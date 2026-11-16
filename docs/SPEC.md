@@ -140,7 +140,7 @@ Rules:
 - **Warnings:**
   - `out_of_range`: a slider is outside the values seen in training.
   - `new_policy`: a custom policy is far from all real schemes → wider range + label.
-  - `partial_data`: the scheme has no real data for this state or time point (e.g. Telangana has no NFHS-4 value).
+  - `partial_data` (D-053): the result uses a state-level figure that is the same for every district of the state (bank accounts, per-capita income): when the benefit slider or the bank-requirement switch is moved, or a custom policy filters on "unbanked" or requires a bank account. Not shown for an imputed baseline. Text: "This result uses state-level figures (bank accounts, income) that are the same for every district in the state."
   - `low_confidence`: the range is wider than 30 pp.
   - `survey_estimate`: shown on every result for the 4 NFHS schemes. Text: "Based on a
     household survey (NFHS), not official sign-up counts. District values carry sampling

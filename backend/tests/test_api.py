@@ -80,6 +80,7 @@ def test_simulate_warnings(client, bihar) -> None:
         },
     ).json()
     assert custom["custom"] and {"new_policy", "partial_data"} <= set(custom["warnings"])
+    assert custom["state_level_traits"] == ["bank_account"]
 
 
 def test_simulate_errors(client, bihar) -> None:
@@ -279,6 +280,32 @@ def test_compare_two_custom_policies_same_group(client, bihar) -> None:
         r["b"]["result"]["point"] - r["a"]["result"]["point"], abs=0.05
     )
     assert d["low"] <= d["point"] <= d["high"]
+
+
+def test_partial_data_only_where_state_traits_matter(client, bihar) -> None:
+    """D-053: an imputed baseline alone gives no warning; income / bank terms do."""
+    ar = client.get("/api/districts", params={"state": "Arunachal Pradesh"}).json()
+    did = next(p["id"] for p in ar if p["name"] == "East Siang")  # imputed PM-JAY baseline
+    real = client.get("/api/schemes").json()
+    d = next(s for s in real if s["code"] == "pmjay")["defaults"]
+
+    def warns(inputs):
+        body = {"district_id": did, "scheme": "pmjay", "inputs": inputs}
+        r = client.post("/api/simulate", json=body).json()
+        return set(r["warnings"]), r["state_level_traits"]
+
+    assert "partial_data" not in warns(d)[0]
+    assert "partial_data" not in warns({**d, "application_burden": 4, "document_count": 5})[0]
+    w, traits = warns({**d, "cash_benefit_inr": d["cash_benefit_inr"] * 1.5})
+    assert "partial_data" in w and traits == ["per_capita_income"]
+    w, traits = warns({**d, "requires_bank_account": True})
+    assert "partial_data" in w and traits == ["bank_account"]
+
+
+def test_report_counts_pmjay_nfhs5_not_above_nfhs4(client) -> None:
+    c = client.get("/api/report").json()["pmjay_nfhs5_not_above_nfhs4"]
+    assert c["of"] == 629 and 0 < c["n"] < c["of"]
+    assert c["n_own"] <= c["n"] and c["of_own"] <= c["of"]
 
 
 def test_east_siang_burden_through_simulate_state_and_compare(client) -> None:

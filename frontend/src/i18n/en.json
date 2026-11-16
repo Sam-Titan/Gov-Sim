@@ -100,7 +100,7 @@
     "low_confidence": "The range is wider than 30 percentage points. Treat this result with caution.",
     "new_policy": "This is a new policy, far from any real scheme. The range is wider.",
     "out_of_range": "Beyond what real schemes do: a setting is outside the values of real schemes, so the model is less certain.",
-    "partial_data": "Some data for this state is missing or comes from a state average."
+    "partial_data": "This result uses state-level figures (bank accounts, income) that are the same for every district in the state."
   },
   "map": {
     "title": "Map",
@@ -267,7 +267,7 @@
       "deff": "The survey design effect is {{deff}}, {{label}}. The NFHS sheets do not print it.",
       "jsyBirths": "The JSY survey band uses estimated births (women interviewed times a 2011 Census ratio), not a printed count. Half-width: median ±{{median}} pp, largest ±{{max}} pp.",
       "jsyBirthsNoNumbers": "The JSY survey band uses estimated births, not a printed count.",
-      "nfhsDrop": "In some districts (for example in Arunachal Pradesh) NFHS-5 shows much lower PM-JAY health-insurance coverage than NFHS-4. We do not know whether coverage really fell or the two surveys measured it differently.",
+      "nfhsDrop": "In {{n}} of {{of}} districts, PM-JAY coverage in NFHS-5 is at or below NFHS-4 ({{nOwn}} of {{ofOwn}} districts that have their own NFHS-4 value; the rest use the state value), and in some it is much lower (for example in Arunachal Pradesh). We do not know whether coverage really fell or the two surveys measured it differently.",
       "partial": "{{n}} training rows use a state-level baseline instead of a district value.",
       "noData": "{{n}} of {{total}} listed districts have no result; {{unmapped}} of them are new districts with no 2011 parent.",
       "noDataLoading": "The count of districts without a result is loading.",

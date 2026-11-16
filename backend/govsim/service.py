@@ -381,7 +381,43 @@ class Service:
         effects = [e for e in effects if abs(e[1]) >= MIN_EFFECT_PP]
         return sorted(effects, key=lambda e: -abs(e[1]))[:3]
 
+    def pmjay_fell(self) -> dict[str, int]:
+        """PM-JAY rows where the NFHS-5 level is at or below the NFHS-4 baseline (D-052 issue).
+
+        `own` = the district's own NFHS-4 value; the rest use the state value (D-038).
+        """
+        m = self.scheme == "pmjay"
+        fell = 100.0 * self.x.baseline[m] >= self.x.target[m]
+        own = ~self.partial[m]
+        return {
+            "n": int(fell.sum()),
+            "of": int(m.sum()),
+            "n_own": int((fell & own).sum()),
+            "of_own": int(own.sum()),
+        }
+
     # ---- warnings -----------------------------------------------------------------------
+    def state_traits_used(
+        self, row: int, inputs: SchemeInputs | None, tg: TargetGroup | None
+    ) -> list[str]:
+        """State-level traits (same value for a whole state) that change this result (D-053).
+
+        Income enters only through the benefit term, so only when the benefit slider is moved.
+        Bank accounts enter only through the bank-requirement term, a moved bank switch, or
+        a custom group (its size depends on who is banked) when a bank account is required.
+        The imputed PM-JAY / PMUY baseline no longer affects slider results (D-052).
+        """
+        real = self.real_inputs(row)
+        new = inputs or real
+        used: list[str] = []
+        if new.cash_benefit_inr != real.cash_benefit_inr:
+            used.append("per_capita_income")
+        bank_moved = new.requires_bank_account != real.requires_bank_account
+        group_bank = tg is not None and (tg.unbanked is not None or new.requires_bank_account)
+        if bank_moved or group_bank:
+            used.append("bank_account")
+        return used
+
     def out_of_range(self, inputs: SchemeInputs | None) -> bool:
         if inputs is None:
             return False

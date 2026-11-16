@@ -5,7 +5,11 @@ import report from "../../../../backend/artifacts/report.json";
 import { ReportBody } from "./Report";
 import { agentWins, parseReport } from "./reportData";
 
-const raw = report as unknown as ReportResponse;
+// The counts are added by the API at request time (not in report.json); test numbers only.
+const raw = {
+  ...report,
+  pmjay_nfhs5_not_above_nfhs4: { n: 16, of: 63, n_own: 13, of_own: 57 },
+} as unknown as ReportResponse;
 const parsed = parseReport(raw);
 
 const district = (id: string, has_data: boolean, reason: string | null = null): DistrictOut => ({
@@ -70,7 +74,9 @@ describe("report page", () => {
     if (!parsed) throw new Error("report did not parse");
     render(<ReportBody r={parsed} districts={districts} />);
     expect(screen.getByText(/moves the district's real NFHS-5 level up or down/)).toBeTruthy();
-    expect(screen.getByText(/Arunachal Pradesh\) NFHS-5 shows much lower PM-JAY/)).toBeTruthy();
+    expect(
+      screen.getByText(/In 16 of 63 districts, PM-JAY coverage in NFHS-5 is at or below NFHS-4/),
+    ).toBeTruthy();
     expect(screen.getByText(/whether coverage really fell or the two surveys/)).toBeTruthy();
   });
 

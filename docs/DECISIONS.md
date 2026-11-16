@@ -328,3 +328,9 @@ Decided by Sam. Replaces the D-038 baseline idea **for slider changes** (and the
 - **Effect:** PM-JAY and PMUY slider effects are about 1.6× to 2× larger than before in rows with no conflict too (median +1 burden: PM-JAY −1.9 → −5.7 pp, PMUY −2.8 → −6.4 pp). JSY and SBM are almost unchanged (their b is 0).
 - **Check after the change:** +1 burden (central set) is under 0.5 pp in 122 of 2,516 rows; all have a level ≥ 90% (121) or ≤ 10% (1). Test: East Siang PM-JAY +1 burden gives at least 1 pp (central) (−5.97 pp).
 - **Known data issue (shown on the report page):** in some districts, NFHS-5 PM-JAY coverage is much lower than NFHS-4 (160 of 629 rows have NFHS-4 ≥ NFHS-5, own or state mean). Real drop or survey difference: unknown.
+
+## D-053 — `partial_data` warning only where state-level data matters; count on the report page (2026-11-16)
+Decided by Sam.
+- **Warning:** `partial_data` shows only when a state-level figure (the same value for every district of a state) affects the result: per-capita income when the benefit slider is moved (benefit term), bank accounts when the bank-requirement switch is moved, or for a custom policy that filters on "unbanked" or requires a bank account. `state_level_traits` in the response now lists only the traits that matter. An imputed PM-JAY / PMUY baseline no longer shows it (it no longer affects slider results, D-052).
+- **Text (EN):** "This result uses state-level figures (bank accounts, income) that are the same for every district in the state." HI draft in `hi.json`.
+- **Report:** `/report` now has `pmjay_nfhs5_not_above_nfhs4` (`n`, `of`, `n_own`, `of_own`), counted from the data at request time. Today: 160 of 629 districts; 139 of the 567 that have their own NFHS-4 value (the other 21 of 62 compare with the state value). The page shows both numbers.

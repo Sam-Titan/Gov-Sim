@@ -3,6 +3,15 @@ from typing import Any
 from pydantic import BaseModel
 
 
+class PmjayFell(BaseModel):
+    """PM-JAY districts where NFHS-5 is at or below NFHS-4, counted from the data (D-052)."""
+
+    n: int
+    of: int
+    n_own: int  # of those, districts that have their own NFHS-4 value
+    of_own: int
+
+
 class ReportResponse(BaseModel):
     """Model report data: `artifacts/report.json` as written by `just train`.
 
@@ -13,6 +22,7 @@ class ReportResponse(BaseModel):
     n_districts: int
     n_rows: int
     n_agents: int
+    pmjay_nfhs5_not_above_nfhs4: PmjayFell
     baseline_partial_rows: int  # rows whose PM-JAY / PMUY baseline is a state value
     losto_headline: dict[str, Any]
     loso: dict[str, Any]

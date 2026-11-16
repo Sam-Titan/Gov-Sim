@@ -29,7 +29,6 @@ from govsim.service import SETS, NoData, Outcome, Service
 router = APIRouter()
 Svc = Annotated[Service, Depends(get_service)]
 ERRORS: dict[int | str, dict[str, Any]] = {404: {"model": ErrorBody}, 422: {"model": ErrorBody}}
-STATE_LEVEL_TRAITS = ["per_capita_income", "bank_account"]  # same value for a whole state
 
 
 def _inputs(i: Inputs | None) -> SchemeInputs | None:
@@ -75,8 +74,7 @@ def _warnings(svc: Service, setting: Setting, out: Outcome, i: int, row: int) ->
         w.append(WarningCode.new_policy)
     if svc.out_of_range(_inputs(setting.inputs)):
         w.append(WarningCode.out_of_range)
-    unbanked = setting.target_group is not None and setting.target_group.unbanked is not None
-    if svc.partial[row] or unbanked:
+    if svc.state_traits_used(row, _inputs(setting.inputs), setting.target_group):
         w.append(WarningCode.partial_data)
     return w
 
@@ -107,7 +105,7 @@ def simulate_one(svc: Service, district_id: str, setting: Setting) -> SimulateRe
         warnings=_warnings(svc, setting, out, 0, row),
         real_inputs=Inputs(**real.model_dump()),
         used_inputs=Inputs(**(inputs or real).model_dump()),
-        state_level_traits=STATE_LEVEL_TRAITS,
+        state_level_traits=svc.state_traits_used(row, inputs, setting.target_group),
     )
 
 

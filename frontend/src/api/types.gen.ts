@@ -174,6 +174,30 @@ export type Inputs = {
 };
 
 /**
+ * PmjayFell
+ *
+ * PM-JAY districts where NFHS-5 is at or below NFHS-4, counted from the data (D-052).
+ */
+export type PmjayFell = {
+    /**
+     * N
+     */
+    n: number;
+    /**
+     * Of
+     */
+    of: number;
+    /**
+     * N Own
+     */
+    n_own: number;
+    /**
+     * Of Own
+     */
+    of_own: number;
+};
+
+/**
  * Range2
  */
 export type Range2 = {
@@ -261,6 +285,7 @@ export type ReportResponse = {
      * N Agents
      */
     n_agents: number;
+    pmjay_nfhs5_not_above_nfhs4: PmjayFell;
     /**
      * Baseline Partial Rows
      */
